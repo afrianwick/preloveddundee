@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CMS Admin · Preloved Items</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<!-- ⚠️ IMPORTANT: Replace YOUR_GOOGLE_CLIENT_ID below with your actual Google OAuth Client ID -->
+<!-- Get one free at: https://console.cloud.google.com → APIs & Services → Credentials → Create OAuth 2.0 Client ID -->
+<!-- Authorized origins: add your GitHub Pages URL e.g. https://username.github.io -->
+<meta name="google-signin-client_id" content="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
+<style>
+:root{--bg:#F4F6F9;--dark:#1A1A1A;--accent:#003F8A;--accent2:#C8442A;--muted:#7A7065;--white:#fff;--border:#E0E6EF;--green:#25D366;--sidebar-w:240px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--dark);font-family:'DM Sans',sans-serif;min-height:100vh;}
+
+/* LOGIN SCREEN */
+#loginScreen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem;text-align:center;background:linear-gradient(135deg,#003F8A 0%,#1a1a2e 100%);}
+.login-box{background:#fff;border-radius:16px;padding:3rem 2.5rem;max-width:380px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);}
+.login-logo{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:700;color:var(--dark);margin-bottom:.25rem;}
+.login-logo span{color:var(--accent2);font-style:italic;}
+.login-sub{font-size:.82rem;color:var(--muted);margin-bottom:2rem;}
+.login-divider{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
+.login-hint{font-size:.75rem;color:#bbb;margin-top:1rem;}
+
+/* ALLOWED EMAILS CONFIG */
+.allowed-config{background:#fff3cd;border:1px solid #ffc107;border-radius:8px;padding:.75rem 1rem;margin-top:1.25rem;font-size:.78rem;color:#856404;text-align:left;}
+.allowed-config code{background:#fff;padding:.1rem .3rem;border-radius:3px;font-family:monospace;}
+
+/* APP LAYOUT */
+#app{display:none;min-height:100vh;}
+.sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;background:var(--dark);color:#fff;display:flex;flex-direction:column;z-index:100;overflow-y:auto;}
+.sidebar-brand{padding:1.5rem 1.25rem 1rem;border-bottom:1px solid #333;}
+.brand-name{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;}
+.brand-name span{color:#6CA0DC;font-style:italic;}
+.brand-sub{font-size:.7rem;color:#888;margin-top:.15rem;}
+.nav{flex:1;padding:1rem 0;}
+.nav-item{display:flex;align-items:center;gap:.75rem;padding:.7rem 1.25rem;font-size:.88rem;color:#aaa;cursor:pointer;transition:background .15s,color .15s;border-left:3px solid transparent;}
+.nav-item:hover{background:#111;color:#fff;}
+.nav-item.active{background:#111;color:#fff;border-left-color:#6CA0DC;}
+.nav-item .icon{font-size:1rem;width:20px;text-align:center;}
+.sidebar-user{padding:1rem 1.25rem;border-top:1px solid #333;}
+.user-info{display:flex;align-items:center;gap:.6rem;margin-bottom:.75rem;}
+.user-avatar{width:32px;height:32px;border-radius:50%;object-fit:cover;background:#444;}
+.user-name{font-size:.82rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.user-email{font-size:.7rem;color:#888;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.btn-logout{width:100%;background:#222;border:1px solid #444;color:#aaa;padding:.5rem;border-radius:6px;font-size:.78rem;cursor:pointer;transition:background .15s;}
+.btn-logout:hover{background:#333;color:#fff;}
+
+/* MAIN */
+.main{margin-left:var(--sidebar-w);padding:2rem;min-height:100vh;}
+.page{display:none;}
+.page.active{display:block;}
+.page-header{margin-bottom:1.75rem;}
+.page-title{font-family:'Playfair Display',serif;font-size:1.75rem;font-weight:700;}
+.page-sub{font-size:.85rem;color:var(--muted);margin-top:.25rem;}
+
+/* STAT CARDS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem;margin-bottom:2rem;}
+.stat-card{background:#fff;border-radius:10px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,.05);}
+.stat-value{font-size:2rem;font-weight:700;font-family:'Playfair Display',serif;color:var(--accent);}
+.stat-label{font-size:.78rem;color:var(--muted);margin-top:.15rem;}
+
+/* TOOLBAR */
+.toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;gap:1rem;flex-wrap:wrap;}
+.search-field{display:flex;align-items:center;gap:.5rem;background:#fff;border:1.5px solid var(--border);border-radius:8px;padding:.5rem .85rem;flex:1;max-width:300px;}
+.search-field input{border:none;outline:none;font-size:.88rem;font-family:'DM Sans',sans-serif;width:100%;}
+.btn{display:inline-flex;align-items:center;gap:.4rem;padding:.6rem 1.1rem;border-radius:8px;border:none;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:500;cursor:pointer;transition:opacity .15s,transform .1s;}
+.btn:active{transform:scale(.97);}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-primary:hover{opacity:.88;}
+.btn-danger{background:#fee2e2;color:#b91c1c;}
+.btn-danger:hover{background:#fecaca;}
+.btn-success{background:#d1fae5;color:#065f46;}
+.btn-sm{padding:.4rem .75rem;font-size:.78rem;}
+
+/* PRODUCT TABLE */
+.table-wrap{background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.05);overflow:hidden;}
+table{width:100%;border-collapse:collapse;}
+th{padding:.75rem 1rem;text-align:left;font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--border);background:#fafbfc;}
+td{padding:.85rem 1rem;font-size:.88rem;border-bottom:1px solid #f0f0f0;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#fafbfc;}
+.td-img{width:52px;height:52px;border-radius:6px;object-fit:cover;}
+.td-name{font-weight:500;}
+.td-desc{color:var(--muted);font-size:.8rem;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.stock-pill{display:inline-block;font-size:.72rem;font-weight:500;padding:.18rem .55rem;border-radius:2rem;}
+.stock-ok{background:#d1fae5;color:#065f46;}
+.stock-low{background:#ffedd5;color:#9a3412;}
+.stock-out{background:#fee2e2;color:#991b1b;}
+.actions{display:flex;gap:.4rem;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:none;align-items:flex-start;justify-content:center;padding:2rem 1rem;overflow-y:auto;}
+.modal-overlay.show{display:flex;}
+.modal{background:#fff;border-radius:14px;width:100%;max-width:560px;box-shadow:0 20px 60px rgba(0,0,0,.2);margin:auto;}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);}
+.modal-title{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;}
+.modal-close{background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--muted);}
+.modal-body{padding:1.5rem;}
+.modal-footer{padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:.75rem;}
+
+/* FORM */
+.form-group{margin-bottom:1.1rem;}
+label{display:block;font-size:.8rem;font-weight:500;color:var(--muted);margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.04em;}
+input[type=text],input[type=number],textarea,select{width:100%;border:1.5px solid var(--border);border-radius:8px;padding:.6rem .85rem;font-family:'DM Sans',sans-serif;font-size:.9rem;color:var(--dark);outline:none;transition:border-color .2s;background:#fff;}
+input:focus,textarea:focus,select:focus{border-color:var(--accent);}
+textarea{resize:vertical;min-height:80px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+
+/* IMAGE UPLOAD AREA */
+.img-upload-area{border:2px dashed var(--border);border-radius:8px;padding:1.5rem;text-align:center;cursor:pointer;transition:border-color .2s;background:#fafbfc;}
+.img-upload-area:hover,.img-upload-area.dragover{border-color:var(--accent);}
+.img-upload-area p{font-size:.82rem;color:var(--muted);margin-top:.4rem;}
+.img-preview-list{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.75rem;}
+.img-preview-item{position:relative;width:72px;height:72px;}
+.img-preview-item img{width:100%;height:100%;object-fit:cover;border-radius:6px;border:1.5px solid var(--border);}
+.img-remove{position:absolute;top:-6px;right:-6px;background:var(--accent2);color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:.65rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+
+/* CONFIRM MODAL */
+.confirm-modal{background:#fff;border-radius:14px;max-width:360px;width:100%;padding:2rem;text-align:center;margin:auto;}
+.confirm-icon{font-size:2.5rem;margin-bottom:.75rem;}
+.confirm-title{font-size:1.1rem;font-weight:600;margin-bottom:.5rem;}
+.confirm-sub{font-size:.85rem;color:var(--muted);margin-bottom:1.5rem;}
+.confirm-btns{display:flex;gap:.75rem;justify-content:center;}
+
+/* TOAST */
+.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(100px);background:#1a1a1a;color:#fff;padding:.7rem 1.5rem;border-radius:2rem;font-size:.85rem;z-index:9999;opacity:0;transition:all .3s;pointer-events:none;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* MOBILE MENU */
+.mobile-toggle{display:none;position:fixed;top:1rem;left:1rem;z-index:200;background:var(--dark);color:#fff;border:none;border-radius:8px;width:40px;height:40px;font-size:1.2rem;cursor:pointer;align-items:center;justify-content:center;}
+@media(max-width:700px){
+  .mobile-toggle{display:flex;}
+  .sidebar{transform:translateX(-100%);transition:transform .3s;}
+  .sidebar.open{transform:translateX(0);}
+  .main{margin-left:0;padding:1rem;padding-top:4rem;}
+  .form-row{grid-template-columns:1fr;}
+  .stats-grid{grid-template-columns:1fr 1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">Preloved <span>CMS</span></div>
+    <div class="login-sub">Panel admin untuk kelola produk</div>
+    <div style="background:#f0f4ff;border-radius:8px;padding:1rem;font-size:.8rem;color:#444;text-align:left;margin-bottom:1.5rem;">
+      <strong>⚠️ Setup diperlukan:</strong><br>
+      Sebelum Google Login bisa digunakan, kamu perlu:<br>
+      1. Buat <strong>Google OAuth Client ID</strong> di <a href="https://console.cloud.google.com" target="_blank" style="color:var(--accent);">Google Cloud Console</a><br>
+      2. Ganti <code style="background:#e8edf5;padding:.1rem .3rem;border-radius:3px;">YOUR_GOOGLE_CLIENT_ID</code> di baris 13 file ini<br>
+      3. Daftarkan domain GitHub Pages kamu sebagai Authorized Origin
+    </div>
+    <div id="googleSignInBtn"></div>
+    <hr class="login-divider">
+    <div style="font-size:.78rem;color:var(--muted);margin-bottom:.5rem;">Atau masuk sebagai admin lokal (untuk testing):</div>
+    <button onclick="loginLocal()" style="width:100%;padding:.7rem;background:var(--dark);color:#fff;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.88rem;cursor:pointer;">🔑 Masuk sebagai Admin (Lokal)</button>
+    <div class="login-hint">Login lokal hanya untuk testing — tidak aman untuk produksi</div>
+
+    <div class="allowed-config">
+      <strong>🔒 Email yang diizinkan:</strong><br>
+      Edit variabel <code>ALLOWED_EMAILS</code> di bawah ini untuk membatasi akses.<br>
+      Default: <code>[]</code> = semua Google account bisa masuk
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<button class="mobile-toggle" onclick="toggleSidebar()">☰</button>
+<div id="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-name">Preloved <span>CMS</span></div>
+      <div class="brand-sub">Panel Admin</div>
+    </div>
+    <nav class="nav">
+      <div class="nav-item active" onclick="showPage('dashboard')" data-page="dashboard">
+        <span class="icon">📊</span> Dashboard
+      </div>
+      <div class="nav-item" onclick="showPage('products')" data-page="products">
+        <span class="icon">📦</span> Produk
+      </div>
+      <div class="nav-item" onclick="showPage('settings')" data-page="settings">
+        <span class="icon">⚙️</span> Pengaturan
+      </div>
+    </nav>
+    <div class="sidebar-user">
+      <div class="user-info">
+        <img id="userAvatar" class="user-avatar" src="" alt="">
+        <div>
+          <div class="user-name" id="userName">Admin</div>
+          <div class="user-email" id="userEmail"></div>
+        </div>
+      </div>
+      <button class="btn-logout" onclick="logout()">🚪 Keluar</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <div class="page-title">Dashboard</div>
+        <div class="page-sub" id="dashGreeting">Selamat datang!</div>
+      </div>
+      <div class="stats-grid" id="statsGrid"></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Produk</th><th>Harga</th><th>Stok</th><th>Status</th></tr></thead>
+          <tbody id="dashTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- PRODUCTS -->
+    <div class="page" id="page-products">
+      <div class="page-header">
+        <div class="page-title">Kelola Produk</div>
+        <div class="page-sub">Tambah, edit, atau hapus produk</div>
+      </div>
+      <div class="toolbar">
+        <div class="search-field">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="cmsSearch" placeholder="Cari produk..." oninput="renderTable()">
+        </div>
+        <button class="btn btn-primary" onclick="openAddModal()">＋ Tambah Produk</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Foto</th><th>Nama & Deskripsi</th><th>Harga</th><th>Stok</th><th>Aksi</th></tr></thead>
+          <tbody id="productTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="page" id="page-settings">
+      <div class="page-header">
+        <div class="page-title">Pengaturan</div>
+        <div class="page-sub">Konfigurasi toko</div>
+      </div>
+      <div style="background:#fff;border-radius:10px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,.05);max-width:520px;">
+        <div class="form-group">
+          <label>Nomor WhatsApp</label>
+          <input type="text" id="settingWA" placeholder="628114140218">
+        </div>
+        <div class="form-group">
+          <label>Nama Toko</label>
+          <input type="text" id="settingName" placeholder="Preloved Items">
+        </div>
+        <div class="form-group">
+          <label>Mata Uang</label>
+          <select id="settingCurrency">
+            <option value="£">£ Pound Sterling</option>
+            <option value="Rp">Rp Rupiah</option>
+            <option value="$">$ Dollar</option>
+            <option value="€">€ Euro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Email Admin yang Diizinkan</label>
+          <textarea id="settingEmails" placeholder="email@gmail.com&#10;email2@gmail.com&#10;(satu per baris, kosongkan = semua bisa masuk)" style="min-height:80px;"></textarea>
+          <div style="font-size:.75rem;color:var(--muted);margin-top:.3rem;">Kosongkan untuk mengizinkan semua akun Google</div>
+        </div>
+        <button class="btn btn-primary" onclick="saveSettings()">💾 Simpan Pengaturan</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ADD/EDIT PRODUCT MODAL -->
+<div class="modal-overlay" id="productModal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modalTitle">Tambah Produk</span>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editId">
+      <div class="form-group">
+        <label>Nama Produk *</label>
+        <input type="text" id="editName" placeholder="Nama produk">
+      </div>
+      <div class="form-group">
+        <label>Deskripsi</label>
+        <textarea id="editDesc" placeholder="Deskripsi produk..."></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Harga</label>
+          <input type="number" id="editPrice" placeholder="0" min="0" step="0.01">
+        </div>
+        <div class="form-group">
+          <label>Stok</label>
+          <input type="number" id="editStock" placeholder="0" min="0">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Mata Uang</label>
+        <select id="editCurrency">
+          <option value="£">£ Pound</option>
+          <option value="Rp">Rp Rupiah</option>
+          <option value="$">$ Dollar</option>
+          <option value="€">€ Euro</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Kategori</label>
+        <select id="editCategory">
+          <option value="Kitchen">🍳 Kitchen</option>
+          <option value="Clothes">👕 Clothes</option>
+          <option value="Toy & Kids">🧸 Toy &amp; Kids</option>
+          <option value="Food">🍱 Food</option>
+          <option value="Medicine">💊 Medicine</option>
+          <option value="Others">📦 Others</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Foto Produk</label>
+        <div class="img-upload-area" id="uploadArea" onclick="document.getElementById('imgFileInput').click()" ondragover="onDragOver(event)" ondrop="onDrop(event)">
+          <div style="font-size:2rem;">📷</div>
+          <p>Klik atau drag foto ke sini<br><span style="font-size:.75rem;color:#bbb;">JPG, PNG, WEBP — bisa lebih dari 1</span></p>
+        </div>
+        <input type="file" id="imgFileInput" multiple accept="image/*" style="display:none" onchange="handleImgFiles(this.files)">
+        <div class="img-preview-list" id="imgPreviewList"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()" style="background:#f1f5f9;color:var(--dark);">Batal</button>
+      <button class="btn btn-primary" onclick="saveProduct()">💾 Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM DELETE MODAL -->
+<div class="modal-overlay" id="confirmModal">
+  <div class="confirm-modal">
+    <div class="confirm-icon">🗑️</div>
+    <div class="confirm-title">Hapus Produk?</div>
+    <div class="confirm-sub" id="confirmSub">Tindakan ini tidak bisa dibatalkan.</div>
+    <div class="confirm-btns">
+      <button class="btn" onclick="closeConfirm()" style="background:#f1f5f9;color:var(--dark);">Batal</button>
+      <button class="btn btn-danger" onclick="confirmDelete()">Hapus</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ===================== CONFIG =====================
+const STORAGE_KEY = 'preloved_products_v1';
+const SETTINGS_KEY = 'preloved_settings_v1';
+// Add allowed emails here, or leave empty [] for open access
+// Can also be edited in Settings page
+let ALLOWED_EMAILS = [];
+
+// ===================== AUTH =====================
+let currentUser = null;
+
+function initGoogleSignIn() {
+  if (typeof google === 'undefined') return;
+  google.accounts.id.initialize({
+    client_id: document.querySelector('meta[name="google-signin-client_id"]').content,
+    callback: handleGoogleCredential,
+    auto_select: false,
+  });
+  google.accounts.id.renderButton(document.getElementById('googleSignInBtn'), {
+    theme: 'outline', size: 'large', width: 280, text: 'signin_with'
+  });
+}
+
+function handleGoogleCredential(response) {
+  const payload = parseJwt(response.credential);
+  const email = payload.email;
+  const settings = loadSettings();
+  const allowed = (settings.allowedEmails || []).filter(e => e.trim());
+  if (allowed.length > 0 && !allowed.includes(email)) {
+    showToast('❌ Email tidak diizinkan: ' + email);
+    return;
+  }
+  currentUser = { name: payload.name, email: payload.email, picture: payload.picture };
+  onLoginSuccess();
+}
+
+function loginLocal() {
+  currentUser = { name: 'Admin Lokal', email: 'admin@local', picture: '' };
+  onLoginSuccess();
+}
+
+function onLoginSuccess() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('userName').textContent = currentUser.name;
+  document.getElementById('userEmail').textContent = currentUser.email;
+  if (currentUser.picture) document.getElementById('userAvatar').src = currentUser.picture;
+  else document.getElementById('userAvatar').style.background = '#444';
+  const h = new Date().getHours();
+  const greet = h < 12 ? 'Selamat pagi' : h < 17 ? 'Selamat siang' : 'Selamat malam';
+  document.getElementById('dashGreeting').textContent = greet + ', ' + currentUser.name + '!';
+  renderDashboard();
+  renderTable();
+  loadSettingsForm();
+}
+
+function logout() {
+  currentUser = null;
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  if (typeof google !== 'undefined') google.accounts.id.disableAutoSelect();
+}
+
+function parseJwt(token) {
+  const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+  return JSON.parse(atob(base64));
+}
+
+// ===================== DATA =====================
+function loadProducts() {
+  try { const s = localStorage.getItem(STORAGE_KEY); if (s) return JSON.parse(s); } catch(e) {}
+  return [];
+}
+
+function saveProducts(prods) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(prods));
+}
+
+function loadSettings() {
+  try { const s = localStorage.getItem(SETTINGS_KEY); if (s) return JSON.parse(s); } catch(e) {}
+  return { wa: '628114140218', storeName: 'Preloved Items', currency: '£', allowedEmails: [] };
+}
+
+function saveSettingsData(data) {
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(data));
+}
+
+// ===================== NAVIGATION =====================
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  document.querySelector('[data-page='+name+']').classList.add('active');
+  if (name === 'dashboard') renderDashboard();
+  if (name === 'products') renderTable();
+  if (name === 'settings') loadSettingsForm();
+  // close sidebar on mobile
+  document.getElementById('sidebar').classList.remove('open');
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+// ===================== HELPERS =====================
+function getCatIcon(cat) {
+  const icons = {'Kitchen':'🍳 ','Clothes':'👕 ','Toy & Kids':'🧸 ','Food':'🍱 ','Medicine':'💊 ','Others':'📦 '};
+  return icons[cat] || '📦 ';
+}
+
+// ===================== DASHBOARD =====================
+function renderDashboard() {
+  const products = loadProducts();
+  const totalProducts = products.length;
+  const totalStock = products.reduce((s,p) => s+p.stock, 0);
+  const outOfStock = products.filter(p => p.stock===0).length;
+  const lowStock = products.filter(p => p.stock>0 && p.stock<=3).length;
+
+  const cats = ['Kitchen','Clothes','Toy & Kids','Food','Medicine','Others'];
+  const catCounts = cats.map(c => ({ label: c, value: products.filter(p=>(p.category||'Others')===c).length, icon: getCatIcon(c) })).filter(c=>c.value>0);
+  const baseStats = [
+    { label: 'Total Produk', value: totalProducts, icon: '📦' },
+    { label: 'Total Stok', value: totalStock, icon: '🔢' },
+    { label: 'Stok Habis', value: outOfStock, icon: '❌' },
+    { label: 'Stok Menipis', value: lowStock, icon: '⚠️' },
+  ];
+  document.getElementById('statsGrid').innerHTML = [...baseStats, ...catCounts].map(s => '<div class="stat-card"><div class="stat-value">'+s.icon+' '+s.value+'</div><div class="stat-label">'+s.label+'</div></div>').join('');
+
+  document.getElementById('dashTable').innerHTML = products.slice(0,10).map(p => {
+    const pill = p.stock===0 ? '<span class="stock-pill stock-out">Habis</span>' : p.stock<=3 ? '<span class="stock-pill stock-low">Menipis</span>' : '<span class="stock-pill stock-ok">Tersedia</span>';
+    return '<tr>'+
+      '<td><strong>'+p.name+'</strong></td>'+
+      '<td>'+p.currency+p.price+'</td>'+
+      '<td>'+p.stock+'</td>'+
+      '<td>'+pill+'</td>'+
+    '</tr>';
+  }).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:2rem">Belum ada produk</td></tr>';
+}
+
+// ===================== PRODUCT TABLE =====================
+function renderTable() {
+  const products = loadProducts();
+  const q = (document.getElementById('cmsSearch')?.value || '').toLowerCase();
+  const list = q ? products.filter(p => p.name.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q)) : products;
+
+  document.getElementById('productTable').innerHTML = list.map(p => {
+    const pill = p.stock===0 ? '<span class="stock-pill stock-out">Habis</span>' : p.stock<=3 ? '<span class="stock-pill stock-low">'+p.stock+' tersisa</span>' : '<span class="stock-pill stock-ok">'+p.stock+'</span>';
+    const thumb = p.imgs && p.imgs[0] ? '<img class="td-img" src="'+p.imgs[0]+'" alt="'+p.name+'">' : '<div style="width:52px;height:52px;background:#eee;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;">📷</div>';
+    return '<tr>'+
+      '<td>'+thumb+'</td>'+
+      '<td><div class="td-name">'+p.name+' <span style="font-size:.7rem;background:#f1f5f9;color:#666;padding:.12rem .45rem;border-radius:2rem;font-weight:400;">'+getCatIcon(p.category)+(p.category||'Others')+'</span></div><div class="td-desc">'+p.desc+'</div></td>'+
+      '<td>'+p.currency+p.price+'</td>'+
+      '<td>'+pill+'</td>'+
+      '<td><div class="actions">'+
+        '<button class="btn btn-sm btn-success" onclick="openEditModal('+p.id+')">✏️ Edit</button>'+
+        '<button class="btn btn-sm btn-danger" onclick="askDelete('+p.id+',\''+p.name.replace(/'/g,"\\'")+"'"+')">🗑</button>'+
+      '</div></td>'+
+    '</tr>';
+  }).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:2rem;">Belum ada produk</td></tr>';
+}
+
+// ===================== MODAL =====================
+let editImgs = [];
+let deleteId = null;
+
+function openAddModal() {
+  editImgs = [];
+  document.getElementById('editId').value = '';
+  document.getElementById('editName').value = '';
+  document.getElementById('editDesc').value = '';
+  document.getElementById('editPrice').value = '';
+  document.getElementById('editStock').value = '';
+  const s = loadSettings();
+  document.getElementById('editCurrency').value = s.currency || '£';
+  document.getElementById('editCategory').value = 'Others';
+  document.getElementById('imgPreviewList').innerHTML = '';
+  document.getElementById('modalTitle').textContent = 'Tambah Produk';
+  document.getElementById('productModal').classList.add('show');
+}
+
+function openEditModal(id) {
+  const products = loadProducts();
+  const p = products.find(x => x.id === id);
+  if (!p) return;
+  editImgs = [...(p.imgs || [])];
+  document.getElementById('editId').value = id;
+  document.getElementById('editName').value = p.name;
+  document.getElementById('editDesc').value = p.desc;
+  document.getElementById('editPrice').value = p.price;
+  document.getElementById('editStock').value = p.stock;
+  document.getElementById('editCurrency').value = p.currency;
+  document.getElementById('editCategory').value = p.category || 'Others';
+  document.getElementById('modalTitle').textContent = 'Edit Produk';
+  renderImgPreviews();
+  document.getElementById('productModal').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('productModal').classList.remove('show');
+  editImgs = [];
+}
+
+function saveProduct() {
+  const name = document.getElementById('editName').value.trim();
+  if (!name) { showToast('⚠️ Nama produk wajib diisi!'); return; }
+
+  const products = loadProducts();
+  const idVal = document.getElementById('editId').value;
+  const product = {
+    id: idVal ? parseInt(idVal) : Date.now(),
+    name,
+    desc: document.getElementById('editDesc').value.trim(),
+    price: parseFloat(document.getElementById('editPrice').value) || 0,
+    stock: parseInt(document.getElementById('editStock').value) || 0,
+    currency: document.getElementById('editCurrency').value,
+    category: document.getElementById('editCategory').value,
+    imgs: editImgs
+  };
+
+  if (idVal) {
+    const idx = products.findIndex(p => p.id === parseInt(idVal));
+    if (idx >= 0) products[idx] = product;
+  } else {
+    products.push(product);
+  }
+
+  saveProducts(products);
+  closeModal();
+  renderTable();
+  renderDashboard();
+  showToast('✅ Produk berhasil disimpan!');
+}
+
+// ===================== DELETE =====================
+function askDelete(id, name) {
+  deleteId = id;
+  document.getElementById('confirmSub').textContent = 'Hapus "'+name+'"? Tindakan ini tidak bisa dibatalkan.';
+  document.getElementById('confirmModal').classList.add('show');
+}
+
+function closeConfirm() { document.getElementById('confirmModal').classList.remove('show'); deleteId = null; }
+
+function confirmDelete() {
+  if (!deleteId) return;
+  const products = loadProducts().filter(p => p.id !== deleteId);
+  saveProducts(products);
+  closeConfirm();
+  renderTable();
+  renderDashboard();
+  showToast('🗑 Produk dihapus');
+}
+
+// ===================== IMAGE HANDLING =====================
+function handleImgFiles(files) {
+  Array.from(files).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      editImgs.push(e.target.result);
+      renderImgPreviews();
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function removeImg(idx) {
+  editImgs.splice(idx, 1);
+  renderImgPreviews();
+}
+
+function renderImgPreviews() {
+  document.getElementById('imgPreviewList').innerHTML = editImgs.map((src, i) =>
+    '<div class="img-preview-item">'+
+      '<img src="'+src+'" alt="preview '+i+'">'+
+      '<button class="img-remove" onclick="removeImg('+i+')">✕</button>'+
+    '</div>'
+  ).join('');
+}
+
+function onDragOver(e) { e.preventDefault(); document.getElementById('uploadArea').classList.add('dragover'); }
+function onDrop(e) {
+  e.preventDefault();
+  document.getElementById('uploadArea').classList.remove('dragover');
+  handleImgFiles(e.dataTransfer.files);
+}
+
+// ===================== SETTINGS =====================
+function loadSettingsForm() {
+  const s = loadSettings();
+  document.getElementById('settingWA').value = s.wa || '';
+  document.getElementById('settingName').value = s.storeName || '';
+  document.getElementById('settingCurrency').value = s.currency || '£';
+  document.getElementById('settingEmails').value = (s.allowedEmails || []).join('\n');
+}
+
+function saveSettings() {
+  const emails = document.getElementById('settingEmails').value.split('\n').map(e=>e.trim()).filter(Boolean);
+  saveSettingsData({
+    wa: document.getElementById('settingWA').value.trim(),
+    storeName: document.getElementById('settingName').value.trim(),
+    currency: document.getElementById('settingCurrency').value,
+    allowedEmails: emails
+  });
+  showToast('✅ Pengaturan disimpan!');
+}
+
+// ===================== TOAST =====================
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ===================== INIT =====================
+window.addEventListener('load', () => {
+  // Try Google Sign In if library loaded
+  if (typeof google !== 'undefined') initGoogleSignIn();
+  else window.onGoogleLibraryLoad = initGoogleSignIn;
+});
+</script>
+</body>
+</html>
