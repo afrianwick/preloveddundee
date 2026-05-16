@@ -3,675 +3,678 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CMS Admin · Preloved Items</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-
-<!-- ⚠️ IMPORTANT: Replace YOUR_GOOGLE_CLIENT_ID below with your actual Google OAuth Client ID -->
-<!-- Get one free at: https://console.cloud.google.com → APIs & Services → Credentials → Create OAuth 2.0 Client ID -->
-<!-- Authorized origins: add your GitHub Pages URL e.g. https://username.github.io -->
-<meta name="google-signin-client_id" content="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com">
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-
+<title>CMS · Preloved Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#F4F6F9;--dark:#1A1A1A;--accent:#003F8A;--accent2:#C8442A;--muted:#7A7065;--white:#fff;--border:#E0E6EF;--green:#25D366;--sidebar-w:240px;}
-*{margin:0;padding:0;box-sizing:border-box;}
-body{background:var(--bg);color:var(--dark);font-family:'DM Sans',sans-serif;min-height:100vh;}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --white:#fff;--gray-50:#F9FAFB;--gray-100:#F3F4F6;--gray-200:#E5E7EB;
+  --gray-300:#D1D5DB;--gray-400:#9CA3AF;--gray-500:#6B7280;--gray-900:#111827;
+  --blue:#0071E3;--green:#16A34A;--red:#DC2626;--orange:#D97706;
+  --font:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+  --ease:cubic-bezier(.4,0,.2,1);
+  --sidebar:240px
+}
+html,body{height:100%}
+body{font-family:var(--font);background:var(--gray-50);color:var(--gray-900);-webkit-font-smoothing:antialiased}
 
-/* LOGIN SCREEN */
-#loginScreen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem;text-align:center;background:linear-gradient(135deg,#003F8A 0%,#1a1a2e 100%);}
-.login-box{background:#fff;border-radius:16px;padding:3rem 2.5rem;max-width:380px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);}
-.login-logo{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:700;color:var(--dark);margin-bottom:.25rem;}
-.login-logo span{color:var(--accent2);font-style:italic;}
-.login-sub{font-size:.82rem;color:var(--muted);margin-bottom:2rem;}
-.login-divider{border:none;border-top:1px solid var(--border);margin:1.5rem 0;}
-.login-hint{font-size:.75rem;color:#bbb;margin-top:1rem;}
+/* ── LOGIN ── */
+#login{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#003F8A,#111827);padding:20px}
+.login-card{background:var(--white);border-radius:24px;padding:40px 32px;max-width:400px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);text-align:center}
+.login-logo{font-size:28px;font-weight:800;letter-spacing:-.02em;margin-bottom:6px}
+.login-logo span{color:#0071E3}
+.login-sub{font-size:14px;color:var(--gray-400);margin-bottom:32px}
+.login-divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--gray-300);font-size:12px}
+.login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:var(--gray-200)}
+.btn-local{width:100%;padding:14px;background:var(--gray-900);color:#fff;border:none;border-radius:14px;font-family:var(--font);font-size:14px;font-weight:700;cursor:pointer;transition:opacity .15s}
+.btn-local:hover{opacity:.85}
+.login-note{font-size:11px;color:var(--gray-300);margin-top:16px;line-height:1.5}
+.setup-box{background:#EFF6FF;border:1px solid #BFDBFE;border-radius:12px;padding:14px 16px;text-align:left;font-size:12px;color:#1E40AF;margin-bottom:20px;line-height:1.7}
+.setup-box strong{display:block;margin-bottom:4px;font-size:13px}
+.setup-box a{color:#0071E3}
 
-/* ALLOWED EMAILS CONFIG */
-.allowed-config{background:#fff3cd;border:1px solid #ffc107;border-radius:8px;padding:.75rem 1rem;margin-top:1.25rem;font-size:.78rem;color:#856404;text-align:left;}
-.allowed-config code{background:#fff;padding:.1rem .3rem;border-radius:3px;font-family:monospace;}
+/* ── APP LAYOUT ── */
+#app{display:none;height:100vh;overflow:hidden}
+.layout{display:flex;height:100%}
 
-/* APP LAYOUT */
-#app{display:none;min-height:100vh;}
-.sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;background:var(--dark);color:#fff;display:flex;flex-direction:column;z-index:100;overflow-y:auto;}
-.sidebar-brand{padding:1.5rem 1.25rem 1rem;border-bottom:1px solid #333;}
-.brand-name{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;}
-.brand-name span{color:#6CA0DC;font-style:italic;}
-.brand-sub{font-size:.7rem;color:#888;margin-top:.15rem;}
-.nav{flex:1;padding:1rem 0;}
-.nav-item{display:flex;align-items:center;gap:.75rem;padding:.7rem 1.25rem;font-size:.88rem;color:#aaa;cursor:pointer;transition:background .15s,color .15s;border-left:3px solid transparent;}
-.nav-item:hover{background:#111;color:#fff;}
-.nav-item.active{background:#111;color:#fff;border-left-color:#6CA0DC;}
-.nav-item .icon{font-size:1rem;width:20px;text-align:center;}
-.sidebar-user{padding:1rem 1.25rem;border-top:1px solid #333;}
-.user-info{display:flex;align-items:center;gap:.6rem;margin-bottom:.75rem;}
-.user-avatar{width:32px;height:32px;border-radius:50%;object-fit:cover;background:#444;}
-.user-name{font-size:.82rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.user-email{font-size:.7rem;color:#888;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.btn-logout{width:100%;background:#222;border:1px solid #444;color:#aaa;padding:.5rem;border-radius:6px;font-size:.78rem;cursor:pointer;transition:background .15s;}
-.btn-logout:hover{background:#333;color:#fff;}
+/* SIDEBAR */
+.sidebar{width:var(--sidebar);background:var(--gray-900);color:#fff;display:flex;flex-direction:column;flex-shrink:0;overflow-y:auto}
+.sb-brand{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,.07)}
+.sb-brandname{font-size:16px;font-weight:800;letter-spacing:-.01em}
+.sb-brandname span{color:#79ABEE}
+.sb-brandsub{font-size:11px;color:rgba(255,255,255,.35);margin-top:2px}
+.sb-nav{flex:1;padding:10px 0}
+.sb-item{display:flex;align-items:center;gap:10px;padding:10px 18px;font-size:13.5px;font-weight:500;color:rgba(255,255,255,.5);cursor:pointer;transition:all .15s;border-left:3px solid transparent}
+.sb-item:hover{background:rgba(255,255,255,.05);color:#fff}
+.sb-item.on{background:rgba(255,255,255,.07);color:#fff;border-left-color:#79ABEE}
+.sb-item .ico{font-size:16px;width:20px;text-align:center}
+.sb-user{padding:14px 18px;border-top:1px solid rgba(255,255,255,.07)}
+.sb-avatar{width:32px;height:32px;border-radius:50%;object-fit:cover;background:#374151;flex-shrink:0}
+.sb-uname{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-uemail{font-size:11px;color:rgba(255,255,255,.35);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.btn-logout{width:100%;margin-top:10px;padding:8px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.5);border-radius:10px;font-family:var(--font);font-size:12px;cursor:pointer;transition:all .15s}
+.btn-logout:hover{background:rgba(255,255,255,.1);color:#fff}
 
 /* MAIN */
-.main{margin-left:var(--sidebar-w);padding:2rem;min-height:100vh;}
-.page{display:none;}
-.page.active{display:block;}
-.page-header{margin-bottom:1.75rem;}
-.page-title{font-family:'Playfair Display',serif;font-size:1.75rem;font-weight:700;}
-.page-sub{font-size:.85rem;color:var(--muted);margin-top:.25rem;}
+.main{flex:1;overflow-y:auto;padding:28px 28px 40px}
+.page{display:none}.page.on{display:block}
+.page-title{font-size:22px;font-weight:800;letter-spacing:-.02em;margin-bottom:4px}
+.page-sub{font-size:13px;color:var(--gray-400);margin-bottom:24px}
 
 /* STAT CARDS */
-.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem;margin-bottom:2rem;}
-.stat-card{background:#fff;border-radius:10px;padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,.05);}
-.stat-value{font-size:2rem;font-weight:700;font-family:'Playfair Display',serif;color:var(--accent);}
-.stat-label{font-size:.78rem;color:var(--muted);margin-top:.15rem;}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:24px}
+.stat{background:var(--white);border-radius:16px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.stat-val{font-size:28px;font-weight:800;letter-spacing:-.02em;line-height:1;margin-bottom:4px}
+.stat-lbl{font-size:12px;color:var(--gray-400);font-weight:500}
 
 /* TOOLBAR */
-.toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;gap:1rem;flex-wrap:wrap;}
-.search-field{display:flex;align-items:center;gap:.5rem;background:#fff;border:1.5px solid var(--border);border-radius:8px;padding:.5rem .85rem;flex:1;max-width:300px;}
-.search-field input{border:none;outline:none;font-size:.88rem;font-family:'DM Sans',sans-serif;width:100%;}
-.btn{display:inline-flex;align-items:center;gap:.4rem;padding:.6rem 1.1rem;border-radius:8px;border:none;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:500;cursor:pointer;transition:opacity .15s,transform .1s;}
-.btn:active{transform:scale(.97);}
-.btn-primary{background:var(--accent);color:#fff;}
-.btn-primary:hover{opacity:.88;}
-.btn-danger{background:#fee2e2;color:#b91c1c;}
-.btn-danger:hover{background:#fecaca;}
-.btn-success{background:#d1fae5;color:#065f46;}
-.btn-sm{padding:.4rem .75rem;font-size:.78rem;}
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.search-field{display:flex;align-items:center;gap:8px;background:var(--white);border:1.5px solid var(--gray-200);border-radius:12px;padding:9px 14px;flex:1;min-width:180px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.search-field input{border:none;outline:none;font-family:var(--font);font-size:13px;width:100%;color:var(--gray-900)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:12px;border:none;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:opacity .15s,transform .1s;white-space:nowrap}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--gray-900);color:#fff}
+.btn-primary:hover{opacity:.85}
+.btn-danger{background:#FEE2E2;color:var(--red)}
+.btn-danger:hover{background:#FECACA}
+.btn-success{background:#D1FAE5;color:var(--green)}
+.btn-success:hover{background:#A7F3D0}
+.btn-sm{padding:6px 12px;font-size:12px;border-radius:8px}
 
-/* PRODUCT TABLE */
-.table-wrap{background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.05);overflow:hidden;}
-table{width:100%;border-collapse:collapse;}
-th{padding:.75rem 1rem;text-align:left;font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);border-bottom:1px solid var(--border);background:#fafbfc;}
-td{padding:.85rem 1rem;font-size:.88rem;border-bottom:1px solid #f0f0f0;vertical-align:middle;}
-tr:last-child td{border-bottom:none;}
-tr:hover td{background:#fafbfc;}
-.td-img{width:52px;height:52px;border-radius:6px;object-fit:cover;}
-.td-name{font-weight:500;}
-.td-desc{color:var(--muted);font-size:.8rem;max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.stock-pill{display:inline-block;font-size:.72rem;font-weight:500;padding:.18rem .55rem;border-radius:2rem;}
-.stock-ok{background:#d1fae5;color:#065f46;}
-.stock-low{background:#ffedd5;color:#9a3412;}
-.stock-out{background:#fee2e2;color:#991b1b;}
-.actions{display:flex;gap:.4rem;}
+/* TABLE */
+.tbl-wrap{background:var(--white);border-radius:16px;box-shadow:0 1px 3px rgba(0,0,0,.06);overflow:hidden}
+table{width:100%;border-collapse:collapse}
+th{padding:10px 16px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--gray-400);border-bottom:1px solid var(--gray-100);background:var(--gray-50);font-weight:600}
+td{padding:12px 16px;font-size:13px;border-bottom:1px solid var(--gray-100);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#FAFAFA}
+.td-thumb{width:48px;height:48px;border-radius:10px;object-fit:cover;background:var(--gray-100);flex-shrink:0}
+.td-name{font-weight:600;font-size:13px}
+.td-desc{color:var(--gray-400);font-size:12px;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stk-pill{display:inline-block;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:700}
+.stk-ok{background:#D1FAE5;color:#065F46}
+.stk-low{background:#FEF3C7;color:#92400E}
+.stk-out{background:#FEE2E2;color:#991B1B}
+.actions{display:flex;gap:6px}
 
 /* MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:none;align-items:flex-start;justify-content:center;padding:2rem 1rem;overflow-y:auto;}
-.modal-overlay.show{display:flex;}
-.modal{background:#fff;border-radius:14px;width:100%;max-width:560px;box-shadow:0 20px 60px rgba(0,0,0,.2);margin:auto;}
-.modal-header{display:flex;align-items:center;justify-content:space-between;padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);}
-.modal-title{font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;}
-.modal-close{background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--muted);}
-.modal-body{padding:1.5rem;}
-.modal-footer{padding:1rem 1.5rem;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:.75rem;}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(4px);z-index:500;display:none;align-items:flex-start;justify-content:center;padding:32px 16px;overflow-y:auto}
+.modal-bg.on{display:flex}
+.modal{background:var(--white);border-radius:20px;width:100%;max-width:540px;box-shadow:0 20px 60px rgba(0,0,0,.2);margin:auto}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--gray-100)}
+.modal-title{font-size:18px;font-weight:800;letter-spacing:-.01em}
+.modal-close{width:30px;height:30px;border-radius:50%;background:var(--gray-100);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--gray-500)}
+.modal-body{padding:24px}
+.modal-foot{padding:16px 24px;border-top:1px solid var(--gray-100);display:flex;justify-content:flex-end;gap:10px}
 
 /* FORM */
-.form-group{margin-bottom:1.1rem;}
-label{display:block;font-size:.8rem;font-weight:500;color:var(--muted);margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.04em;}
-input[type=text],input[type=number],textarea,select{width:100%;border:1.5px solid var(--border);border-radius:8px;padding:.6rem .85rem;font-family:'DM Sans',sans-serif;font-size:.9rem;color:var(--dark);outline:none;transition:border-color .2s;background:#fff;}
-input:focus,textarea:focus,select:focus{border-color:var(--accent);}
-textarea{resize:vertical;min-height:80px;}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+.fg{margin-bottom:16px}
+label{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--gray-400);margin-bottom:6px}
+input[type=text],input[type=number],textarea,select{width:100%;border:1.5px solid var(--gray-200);border-radius:12px;padding:10px 14px;font-family:var(--font);font-size:14px;color:var(--gray-900);outline:none;transition:border-color .2s,box-shadow .2s;background:var(--white)}
+input:focus,textarea:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,113,227,.1)}
+textarea{resize:vertical;min-height:80px;line-height:1.5}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 
-/* IMAGE UPLOAD AREA */
-.img-upload-area{border:2px dashed var(--border);border-radius:8px;padding:1.5rem;text-align:center;cursor:pointer;transition:border-color .2s;background:#fafbfc;}
-.img-upload-area:hover,.img-upload-area.dragover{border-color:var(--accent);}
-.img-upload-area p{font-size:.82rem;color:var(--muted);margin-top:.4rem;}
-.img-preview-list{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.75rem;}
-.img-preview-item{position:relative;width:72px;height:72px;}
-.img-preview-item img{width:100%;height:100%;object-fit:cover;border-radius:6px;border:1.5px solid var(--border);}
-.img-remove{position:absolute;top:-6px;right:-6px;background:var(--accent2);color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:.65rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+/* IMAGE UPLOAD */
+.upload-zone{border:2px dashed var(--gray-200);border-radius:14px;padding:28px 20px;text-align:center;cursor:pointer;transition:border-color .2s,background .2s;background:var(--gray-50)}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--blue);background:#EFF6FF}
+.upload-zone-icon{font-size:32px;margin-bottom:8px}
+.upload-zone p{font-size:13px;color:var(--gray-400)}
+.upload-zone p strong{color:var(--blue)}
+.previews{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.prev-item{position:relative;width:72px;height:72px}
+.prev-item img{width:100%;height:100%;object-fit:cover;border-radius:10px;border:1.5px solid var(--gray-200)}
+.prev-del{position:absolute;top:-5px;right:-5px;background:var(--red);color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700}
 
-/* CONFIRM MODAL */
-.confirm-modal{background:#fff;border-radius:14px;max-width:360px;width:100%;padding:2rem;text-align:center;margin:auto;}
-.confirm-icon{font-size:2.5rem;margin-bottom:.75rem;}
-.confirm-title{font-size:1.1rem;font-weight:600;margin-bottom:.5rem;}
-.confirm-sub{font-size:.85rem;color:var(--muted);margin-bottom:1.5rem;}
-.confirm-btns{display:flex;gap:.75rem;justify-content:center;}
+/* CONFIRM */
+.confirm-card{background:var(--white);border-radius:20px;max-width:340px;width:100%;padding:32px 24px;text-align:center;margin:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.confirm-icon{font-size:40px;margin-bottom:14px}
+.confirm-title{font-size:18px;font-weight:800;margin-bottom:6px}
+.confirm-sub{font-size:14px;color:var(--gray-400);margin-bottom:24px;line-height:1.5}
+.confirm-btns{display:flex;gap:10px;justify-content:center}
+
+/* SETTINGS */
+.settings-card{background:var(--white);border-radius:16px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.06);max-width:480px}
 
 /* TOAST */
-.toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(100px);background:#1a1a1a;color:#fff;padding:.7rem 1.5rem;border-radius:2rem;font-size:.85rem;z-index:9999;opacity:0;transition:all .3s;pointer-events:none;}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--gray-900);color:#fff;padding:10px 20px;border-radius:100px;font-size:13px;font-weight:600;z-index:9999;opacity:0;transition:all .3s var(--ease);pointer-events:none;white-space:nowrap}
+.toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 
-/* MOBILE MENU */
-.mobile-toggle{display:none;position:fixed;top:1rem;left:1rem;z-index:200;background:var(--dark);color:#fff;border:none;border-radius:8px;width:40px;height:40px;font-size:1.2rem;cursor:pointer;align-items:center;justify-content:center;}
-@media(max-width:700px){
-  .mobile-toggle{display:flex;}
-  .sidebar{transform:translateX(-100%);transition:transform .3s;}
-  .sidebar.open{transform:translateX(0);}
-  .main{margin-left:0;padding:1rem;padding-top:4rem;}
-  .form-row{grid-template-columns:1fr;}
-  .stats-grid{grid-template-columns:1fr 1fr;}
+/* LOADING OVERLAY */
+.loading-overlay{position:fixed;inset:0;background:rgba(255,255,255,.8);backdrop-filter:blur(4px);z-index:800;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px}
+.loading-overlay.on{display:flex}
+.spinner{width:36px;height:36px;border:3px solid var(--gray-200);border-top-color:var(--gray-900);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:640px){
+  .sidebar{position:fixed;left:0;top:0;bottom:0;z-index:200;transform:translateX(-100%);transition:transform .3s var(--ease)}
+  .sidebar.open{transform:translateX(0)}
+  .main{padding:16px 16px 32px}
+  .form-row{grid-template-columns:1fr}
+  .mob-menu{display:flex!important}
 }
+.mob-menu{display:none;position:fixed;top:12px;left:12px;z-index:100;width:36px;height:36px;background:var(--gray-900);color:#fff;border:none;border-radius:10px;align-items:center;justify-content:center;font-size:18px;cursor:pointer}
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
-<div id="loginScreen">
-  <div class="login-box">
+<!-- ── LOGIN ── -->
+<div id="login">
+  <div class="login-card">
     <div class="login-logo">Preloved <span>CMS</span></div>
-    <div class="login-sub">Panel admin untuk kelola produk</div>
-    <div style="background:#f0f4ff;border-radius:8px;padding:1rem;font-size:.8rem;color:#444;text-align:left;margin-bottom:1.5rem;">
-      <strong>⚠️ Setup diperlukan:</strong><br>
-      Sebelum Google Login bisa digunakan, kamu perlu:<br>
-      1. Buat <strong>Google OAuth Client ID</strong> di <a href="https://console.cloud.google.com" target="_blank" style="color:var(--accent);">Google Cloud Console</a><br>
-      2. Ganti <code style="background:#e8edf5;padding:.1rem .3rem;border-radius:3px;">YOUR_GOOGLE_CLIENT_ID</code> di baris 13 file ini<br>
-      3. Daftarkan domain GitHub Pages kamu sebagai Authorized Origin
-    </div>
-    <div id="googleSignInBtn"></div>
-    <hr class="login-divider">
-    <div style="font-size:.78rem;color:var(--muted);margin-bottom:.5rem;">Atau masuk sebagai admin lokal (untuk testing):</div>
-    <button onclick="loginLocal()" style="width:100%;padding:.7rem;background:var(--dark);color:#fff;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.88rem;cursor:pointer;">🔑 Masuk sebagai Admin (Lokal)</button>
-    <div class="login-hint">Login lokal hanya untuk testing — tidak aman untuk produksi</div>
+    <div class="login-sub">Panel admin · Kelola produk</div>
 
-    <div class="allowed-config">
-      <strong>🔒 Email yang diizinkan:</strong><br>
-      Edit variabel <code>ALLOWED_EMAILS</code> di bawah ini untuk membatasi akses.<br>
-      Default: <code>[]</code> = semua Google account bisa masuk
+    <div class="setup-box">
+      <strong>⚠️ Sebelum mulai:</strong>
+      Pastikan sudah mengisi Firebase config di bagian <code style="background:#DBEAFE;padding:1px 5px;border-radius:4px">firebaseConfig</code> di kedua file.<br>
+      Cara dapat config: <a href="https://console.firebase.google.com" target="_blank">Firebase Console</a> → Project Settings → Your Apps → SDK Config
     </div>
+
+    <div id="googleBtnWrap"></div>
+
+    <div class="login-divider">atau</div>
+
+    <button class="btn-local" onclick="loginLocal()">🔑 Masuk sebagai Admin (Testing)</button>
+    <div class="login-note">Login lokal hanya untuk testing di komputer sendiri.<br>Untuk produksi, gunakan Google Login.</div>
   </div>
 </div>
 
-<!-- APP -->
-<button class="mobile-toggle" onclick="toggleSidebar()">☰</button>
+<!-- ── APP ── -->
+<button class="mob-menu" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
 <div id="app">
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-brand">
-      <div class="brand-name">Preloved <span>CMS</span></div>
-      <div class="brand-sub">Panel Admin</div>
-    </div>
-    <nav class="nav">
-      <div class="nav-item active" onclick="showPage('dashboard')" data-page="dashboard">
-        <span class="icon">📊</span> Dashboard
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sb-brand">
+        <div class="sb-brandname">Preloved <span>CMS</span></div>
+        <div class="sb-brandsub">Panel Admin</div>
       </div>
-      <div class="nav-item" onclick="showPage('products')" data-page="products">
-        <span class="icon">📦</span> Produk
+      <nav class="sb-nav">
+        <div class="sb-item on" data-page="dashboard" onclick="nav('dashboard')"><span class="ico">📊</span>Dashboard</div>
+        <div class="sb-item" data-page="products" onclick="nav('products')"><span class="ico">📦</span>Produk</div>
+        <div class="sb-item" data-page="settings" onclick="nav('settings')"><span class="ico">⚙️</span>Pengaturan</div>
+      </nav>
+      <div class="sb-user">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <img id="uAvatar" class="sb-avatar" src="" alt="">
+          <div style="min-width:0">
+            <div class="sb-uname" id="uName">Admin</div>
+            <div class="sb-uemail" id="uEmail"></div>
+          </div>
+        </div>
+        <button class="btn-logout" onclick="logout()">🚪 Keluar</button>
       </div>
-      <div class="nav-item" onclick="showPage('settings')" data-page="settings">
-        <span class="icon">⚙️</span> Pengaturan
-      </div>
-    </nav>
-    <div class="sidebar-user">
-      <div class="user-info">
-        <img id="userAvatar" class="user-avatar" src="" alt="">
-        <div>
-          <div class="user-name" id="userName">Admin</div>
-          <div class="user-email" id="userEmail"></div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+      <!-- DASHBOARD -->
+      <div class="page on" id="page-dashboard">
+        <div class="page-title">Dashboard</div>
+        <div class="page-sub" id="greeting">Selamat datang!</div>
+        <div class="stats" id="statsGrid"></div>
+        <div class="tbl-wrap">
+          <table><thead><tr><th>Produk</th><th>Kategori</th><th>Harga</th><th>Stok</th></tr></thead>
+          <tbody id="dashTbl"></tbody></table>
         </div>
       </div>
-      <button class="btn-logout" onclick="logout()">🚪 Keluar</button>
-    </div>
-  </aside>
 
-  <main class="main">
-    <!-- DASHBOARD -->
-    <div class="page active" id="page-dashboard">
-      <div class="page-header">
-        <div class="page-title">Dashboard</div>
-        <div class="page-sub" id="dashGreeting">Selamat datang!</div>
-      </div>
-      <div class="stats-grid" id="statsGrid"></div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Produk</th><th>Harga</th><th>Stok</th><th>Status</th></tr></thead>
-          <tbody id="dashTable"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- PRODUCTS -->
-    <div class="page" id="page-products">
-      <div class="page-header">
+      <!-- PRODUCTS -->
+      <div class="page" id="page-products">
         <div class="page-title">Kelola Produk</div>
         <div class="page-sub">Tambah, edit, atau hapus produk</div>
-      </div>
-      <div class="toolbar">
-        <div class="search-field">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" id="cmsSearch" placeholder="Cari produk..." oninput="renderTable()">
+        <div class="toolbar">
+          <div class="search-field">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <input type="text" id="cmsSearch" placeholder="Cari produk…" oninput="renderTbl()">
+          </div>
+          <button class="btn btn-primary" onclick="openAdd()">＋ Tambah Produk</button>
         </div>
-        <button class="btn btn-primary" onclick="openAddModal()">＋ Tambah Produk</button>
+        <div class="tbl-wrap">
+          <table><thead><tr><th>Foto</th><th>Nama & Deskripsi</th><th>Kategori</th><th>Harga</th><th>Stok</th><th>Aksi</th></tr></thead>
+          <tbody id="prodTbl"></tbody></table>
+        </div>
       </div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Foto</th><th>Nama & Deskripsi</th><th>Harga</th><th>Stok</th><th>Aksi</th></tr></thead>
-          <tbody id="productTable"></tbody>
-        </table>
-      </div>
-    </div>
 
-    <!-- SETTINGS -->
-    <div class="page" id="page-settings">
-      <div class="page-header">
+      <!-- SETTINGS -->
+      <div class="page" id="page-settings">
         <div class="page-title">Pengaturan</div>
         <div class="page-sub">Konfigurasi toko</div>
+        <div class="settings-card">
+          <div class="fg"><label>Nomor WhatsApp</label><input type="text" id="sWA" placeholder="628114140218"></div>
+          <div class="fg"><label>Nama Toko</label><input type="text" id="sName" placeholder="Preloved Items"></div>
+          <div class="fg"><label>Mata Uang</label>
+            <select id="sCurrency"><option value="£">£ Pound Sterling</option><option value="Rp">Rp Rupiah</option><option value="$">$ Dollar</option><option value="€">€ Euro</option></select>
+          </div>
+          <div class="fg"><label>Email Admin (satu per baris, kosong = semua bisa masuk)</label>
+            <textarea id="sEmails" placeholder="email@gmail.com&#10;email2@gmail.com"></textarea>
+          </div>
+          <button class="btn btn-primary" onclick="saveSettings()">💾 Simpan</button>
+        </div>
       </div>
-      <div style="background:#fff;border-radius:10px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,.05);max-width:520px;">
-        <div class="form-group">
-          <label>Nomor WhatsApp</label>
-          <input type="text" id="settingWA" placeholder="628114140218">
-        </div>
-        <div class="form-group">
-          <label>Nama Toko</label>
-          <input type="text" id="settingName" placeholder="Preloved Items">
-        </div>
-        <div class="form-group">
-          <label>Mata Uang</label>
-          <select id="settingCurrency">
-            <option value="£">£ Pound Sterling</option>
-            <option value="Rp">Rp Rupiah</option>
-            <option value="$">$ Dollar</option>
-            <option value="€">€ Euro</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Email Admin yang Diizinkan</label>
-          <textarea id="settingEmails" placeholder="email@gmail.com&#10;email2@gmail.com&#10;(satu per baris, kosongkan = semua bisa masuk)" style="min-height:80px;"></textarea>
-          <div style="font-size:.75rem;color:var(--muted);margin-top:.3rem;">Kosongkan untuk mengizinkan semua akun Google</div>
-        </div>
-        <button class="btn btn-primary" onclick="saveSettings()">💾 Simpan Pengaturan</button>
-      </div>
-    </div>
-  </main>
+    </main>
+  </div>
 </div>
 
-<!-- ADD/EDIT PRODUCT MODAL -->
-<div class="modal-overlay" id="productModal">
+<!-- PRODUCT MODAL -->
+<div class="modal-bg" id="prodModal">
   <div class="modal">
-    <div class="modal-header">
+    <div class="modal-head">
       <span class="modal-title" id="modalTitle">Tambah Produk</span>
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
     <div class="modal-body">
-      <input type="hidden" id="editId">
-      <div class="form-group">
-        <label>Nama Produk *</label>
-        <input type="text" id="editName" placeholder="Nama produk">
-      </div>
-      <div class="form-group">
-        <label>Deskripsi</label>
-        <textarea id="editDesc" placeholder="Deskripsi produk..."></textarea>
+      <input type="hidden" id="eId">
+      <div class="fg"><label>Nama Produk *</label><input type="text" id="eName" placeholder="Nama produk"></div>
+      <div class="fg"><label>Deskripsi</label><textarea id="eDesc" placeholder="Deskripsi produk…"></textarea></div>
+      <div class="form-row">
+        <div class="fg"><label>Harga</label><input type="number" id="ePrice" placeholder="0" min="0" step="0.01"></div>
+        <div class="fg"><label>Stok</label><input type="number" id="eStock" placeholder="0" min="0"></div>
       </div>
       <div class="form-row">
-        <div class="form-group">
-          <label>Harga</label>
-          <input type="number" id="editPrice" placeholder="0" min="0" step="0.01">
+        <div class="fg"><label>Mata Uang</label>
+          <select id="eCurrency"><option value="£">£ Pound</option><option value="Rp">Rp Rupiah</option><option value="$">$ Dollar</option><option value="€">€ Euro</option></select>
         </div>
-        <div class="form-group">
-          <label>Stok</label>
-          <input type="number" id="editStock" placeholder="0" min="0">
+        <div class="fg"><label>Kategori</label>
+          <select id="eCategory">
+            <option value="Kitchen">🍳 Kitchen</option>
+            <option value="Clothes">👕 Clothes</option>
+            <option value="Toy & Kids">🧸 Toy & Kids</option>
+            <option value="Food">🍱 Food</option>
+            <option value="Medicine">💊 Medicine</option>
+            <option value="Others" selected>📦 Others</option>
+          </select>
         </div>
       </div>
-      <div class="form-group">
-        <label>Mata Uang</label>
-        <select id="editCurrency">
-          <option value="£">£ Pound</option>
-          <option value="Rp">Rp Rupiah</option>
-          <option value="$">$ Dollar</option>
-          <option value="€">€ Euro</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Kategori</label>
-        <select id="editCategory">
-          <option value="Kitchen">🍳 Kitchen</option>
-          <option value="Clothes">👕 Clothes</option>
-          <option value="Toy & Kids">🧸 Toy &amp; Kids</option>
-          <option value="Food">🍱 Food</option>
-          <option value="Medicine">💊 Medicine</option>
-          <option value="Others">📦 Others</option>
-        </select>
-      </div>
-      <div class="form-group">
+      <div class="fg">
         <label>Foto Produk</label>
-        <div class="img-upload-area" id="uploadArea" onclick="document.getElementById('imgFileInput').click()" ondragover="onDragOver(event)" ondrop="onDrop(event)">
-          <div style="font-size:2rem;">📷</div>
-          <p>Klik atau drag foto ke sini<br><span style="font-size:.75rem;color:#bbb;">JPG, PNG, WEBP — bisa lebih dari 1</span></p>
+        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+          <div class="upload-zone-icon">📷</div>
+          <p>Klik atau <strong>drag foto</strong> ke sini</p>
+          <p style="font-size:11px;margin-top:4px;color:#9CA3AF">JPG, PNG, WEBP · Bisa lebih dari 1 foto</p>
         </div>
-        <input type="file" id="imgFileInput" multiple accept="image/*" style="display:none" onchange="handleImgFiles(this.files)">
-        <div class="img-preview-list" id="imgPreviewList"></div>
+        <input type="file" id="fileInput" multiple accept="image/*" style="display:none" onchange="handleFiles(this.files)">
+        <div class="previews" id="previews"></div>
       </div>
     </div>
-    <div class="modal-footer">
-      <button class="btn" onclick="closeModal()" style="background:#f1f5f9;color:var(--dark);">Batal</button>
+    <div class="modal-foot">
+      <button class="btn" style="background:var(--gray-100);color:var(--gray-900)" onclick="closeModal()">Batal</button>
       <button class="btn btn-primary" onclick="saveProduct()">💾 Simpan</button>
     </div>
   </div>
 </div>
 
-<!-- CONFIRM DELETE MODAL -->
-<div class="modal-overlay" id="confirmModal">
-  <div class="confirm-modal">
+<!-- CONFIRM DELETE -->
+<div class="modal-bg" id="confirmModal">
+  <div class="confirm-card">
     <div class="confirm-icon">🗑️</div>
     <div class="confirm-title">Hapus Produk?</div>
     <div class="confirm-sub" id="confirmSub">Tindakan ini tidak bisa dibatalkan.</div>
     <div class="confirm-btns">
-      <button class="btn" onclick="closeConfirm()" style="background:#f1f5f9;color:var(--dark);">Batal</button>
-      <button class="btn btn-danger" onclick="confirmDelete()">Hapus</button>
+      <button class="btn" style="background:var(--gray-100);color:var(--gray-900)" onclick="closeConfirm()">Batal</button>
+      <button class="btn btn-danger" onclick="doDelete()">Hapus</button>
     </div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
+<div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div><div style="font-size:14px;font-weight:600;color:var(--gray-500)">Menyimpan…</div></div>
+
+<!-- ══ FIREBASE ══ -->
+<script type="module">
+import { initializeApp }    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+                            from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, serverTimestamp }
+                            from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject }
+                            from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+// ════════════════════════════════════════════
+//  🔥 GANTI DENGAN CONFIG FIREBASE KAMU
+// ════════════════════════════════════════════
+const firebaseConfig = {
+  apiKey:            "PASTE_API_KEY_DISINI",
+  authDomain:        "PASTE_PROJECT_ID.firebaseapp.com",
+  projectId:         "PASTE_PROJECT_ID",
+  storageBucket:     "PASTE_PROJECT_ID.appspot.com",
+  messagingSenderId: "PASTE_SENDER_ID",
+  appId:             "PASTE_APP_ID"
+};
+
+const app      = initializeApp(firebaseConfig);
+const auth     = getAuth(app);
+const db       = getFirestore(app);
+const storage  = getStorage(app);
+const provider = new GoogleAuthProvider();
+
+// ── Google Sign-In button ──
+const gBtn = document.createElement('div');
+gBtn.id = 'g_id_onload';
+// Use popup flow
+window._googleLogin = async () => {
+  try {
+    const result = await signInWithPopup(auth, provider);
+    // auth state change handled below
+  } catch(e) { toast('❌ Login gagal: '+e.message); }
+};
+
+document.getElementById('googleBtnWrap').innerHTML =
+  `<button onclick="window._googleLogin()" style="width:100%;padding:13px 16px;border:1.5px solid #E5E7EB;border-radius:14px;background:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;color:#111827;transition:border-color .15s" onmouseover="this.style.borderColor='#9CA3AF'" onmouseout="this.style.borderColor='#E5E7EB'">
+    <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.2l6.7-6.7C35.8 2.4 30.3 0 24 0 14.7 0 6.7 5.5 2.7 13.5l7.8 6C12.5 13.1 17.8 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v8.5h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4 6.9-10 6.9-17z"/><path fill="#FBBC05" d="M10.5 28.5c-.5-1.5-.8-3.2-.8-5s.3-3.5.8-5l-7.8-6C1 15.5 0 19.6 0 24s1 8.5 2.7 12l7.8-6c-.5-1-.8-1.9-.8-3.5z" transform="translate(0 5.5)"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.2 1.5-5 2.4-8.4 2.4-6.2 0-11.5-4.2-13.4-9.8l-7.8 6C6.7 42.5 14.7 48 24 48z"/></svg>
+    Masuk dengan Google
+  </button>`;
+
+// ── Auth state ──
+onAuthStateChanged(auth, user => {
+  if(user) {
+    const settings = loadSettings();
+    const allowed = (settings.allowedEmails||[]).filter(e=>e.trim());
+    if(allowed.length && !allowed.includes(user.email)){
+      toast('❌ Email tidak diizinkan: '+user.email);
+      signOut(auth); return;
+    }
+    window._currentUser = { name:user.displayName||user.email, email:user.email, photo:user.photoURL||'' };
+    onLoginSuccess();
+  }
+});
+
+// ── Realtime product listener ──
+window._unsubProducts = null;
+function subscribeProducts(){
+  if(window._unsubProducts) window._unsubProducts();
+  window._unsubProducts = onSnapshot(
+    query(collection(db,'products'), orderBy('createdAt','desc')),
+    snap => {
+      window._prods = snap.docs.map(d=>({id:d.id,...d.data()}));
+      renderTbl(); renderDash();
+    }
+  );
+}
+
+// ── Save product ──
+window._saveProductFirebase = async (data, id, newImgFiles, removedUrls) => {
+  showLoading(true);
+  try {
+    // Delete removed images from Storage
+    for(const url of removedUrls){
+      try { const r=ref(storage, url); await deleteObject(r); } catch(_){}
+    }
+    // Upload new images
+    const uploadedUrls = [];
+    for(const file of newImgFiles){
+      const r = ref(storage, `products/${Date.now()}_${file.name}`);
+      const snap = await uploadBytes(r, file);
+      const url = await getDownloadURL(snap.ref);
+      uploadedUrls.push(url);
+    }
+    // Merge existing URLs + new URLs
+    const finalImgs = [...(data.existingImgs||[]), ...uploadedUrls];
+    const payload = { name:data.name, desc:data.desc, price:data.price, stock:data.stock, currency:data.currency, category:data.category, imgs:finalImgs };
+    if(id){
+      await updateDoc(doc(db,'products',id), payload);
+      toast('✅ Produk diupdate!');
+    } else {
+      payload.createdAt = serverTimestamp();
+      await addDoc(collection(db,'products'), payload);
+      toast('✅ Produk ditambahkan!');
+    }
+    closeModal();
+  } catch(e) {
+    console.error(e); toast('❌ Gagal menyimpan: '+e.message);
+  }
+  showLoading(false);
+};
+
+// ── Delete product ──
+window._deleteProductFirebase = async (id, imgs) => {
+  showLoading(true);
+  try {
+    for(const url of (imgs||[])){
+      try { await deleteObject(ref(storage,url)); } catch(_){}
+    }
+    await deleteDoc(doc(db,'products',id));
+    toast('🗑 Produk dihapus');
+  } catch(e) { toast('❌ Gagal hapus: '+e.message); }
+  showLoading(false);
+  closeConfirm();
+};
+
+// ── Logout ──
+window._firebaseLogout = () => signOut(auth);
+
+// ── Init ──
+window._firebaseReady = true;
+window._subscribeProducts = subscribeProducts;
+</script>
 
 <script>
-// ===================== CONFIG =====================
-const STORAGE_KEY = 'preloved_products_v1';
-const SETTINGS_KEY = 'preloved_settings_v1';
-// Add allowed emails here, or leave empty [] for open access
-// Can also be edited in Settings page
-let ALLOWED_EMAILS = [];
+// ════════════════════════════════════════
+//  APP STATE
+// ════════════════════════════════════════
+window._prods   = [];
+window._currentUser = null;
+let editImgs    = [];   // {type:'existing'|'new', url?:string, file?:File, preview:string}
+let deleteTarget = null;
 
-// ===================== AUTH =====================
-let currentUser = null;
-
-function initGoogleSignIn() {
-  if (typeof google === 'undefined') return;
-  google.accounts.id.initialize({
-    client_id: document.querySelector('meta[name="google-signin-client_id"]').content,
-    callback: handleGoogleCredential,
-    auto_select: false,
-  });
-  google.accounts.id.renderButton(document.getElementById('googleSignInBtn'), {
-    theme: 'outline', size: 'large', width: 280, text: 'signin_with'
-  });
-}
-
-function handleGoogleCredential(response) {
-  const payload = parseJwt(response.credential);
-  const email = payload.email;
-  const settings = loadSettings();
-  const allowed = (settings.allowedEmails || []).filter(e => e.trim());
-  if (allowed.length > 0 && !allowed.includes(email)) {
-    showToast('❌ Email tidak diizinkan: ' + email);
-    return;
-  }
-  currentUser = { name: payload.name, email: payload.email, picture: payload.picture };
+// ════════════════════════════════════════
+//  AUTH
+// ════════════════════════════════════════
+function loginLocal(){
+  window._currentUser = { name:'Admin (Lokal)', email:'admin@local', photo:'' };
   onLoginSuccess();
 }
 
-function loginLocal() {
-  currentUser = { name: 'Admin Lokal', email: 'admin@local', picture: '' };
-  onLoginSuccess();
-}
-
-function onLoginSuccess() {
-  document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
-  document.getElementById('userName').textContent = currentUser.name;
-  document.getElementById('userEmail').textContent = currentUser.email;
-  if (currentUser.picture) document.getElementById('userAvatar').src = currentUser.picture;
-  else document.getElementById('userAvatar').style.background = '#444';
+function onLoginSuccess(){
+  const u = window._currentUser;
+  document.getElementById('login').style.display = 'none';
+  document.getElementById('app').style.display   = 'block';
+  document.getElementById('uName').textContent   = u.name;
+  document.getElementById('uEmail').textContent  = u.email;
+  if(u.photo) document.getElementById('uAvatar').src = u.photo;
   const h = new Date().getHours();
-  const greet = h < 12 ? 'Selamat pagi' : h < 17 ? 'Selamat siang' : 'Selamat malam';
-  document.getElementById('dashGreeting').textContent = greet + ', ' + currentUser.name + '!';
-  renderDashboard();
-  renderTable();
+  document.getElementById('greeting').textContent = (h<12?'Selamat pagi':'h<17?Selamat siang':'Selamat malam')+', '+u.name+'!';
   loadSettingsForm();
+  if(window._subscribeProducts) window._subscribeProducts();
+  else { window._prods=[]; renderTbl(); renderDash(); }
 }
 
-function logout() {
-  currentUser = null;
-  document.getElementById('loginScreen').style.display = 'flex';
-  document.getElementById('app').style.display = 'none';
-  if (typeof google !== 'undefined') google.accounts.id.disableAutoSelect();
+function logout(){
+  if(window._firebaseReady && window._firebaseLogout) window._firebaseLogout();
+  window._currentUser = null;
+  document.getElementById('login').style.display = 'flex';
+  document.getElementById('app').style.display   = 'none';
 }
 
-function parseJwt(token) {
-  const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
-  return JSON.parse(atob(base64));
-}
-
-// ===================== DATA =====================
-function loadProducts() {
-  try { const s = localStorage.getItem(STORAGE_KEY); if (s) return JSON.parse(s); } catch(e) {}
-  return [];
-}
-
-function saveProducts(prods) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(prods));
-}
-
-function loadSettings() {
-  try { const s = localStorage.getItem(SETTINGS_KEY); if (s) return JSON.parse(s); } catch(e) {}
-  return { wa: '628114140218', storeName: 'Preloved Items', currency: '£', allowedEmails: [] };
-}
-
-function saveSettingsData(data) {
-  localStorage.setItem(SETTINGS_KEY, JSON.stringify(data));
-}
-
-// ===================== NAVIGATION =====================
-function showPage(name) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('page-'+name).classList.add('active');
-  document.querySelector('[data-page='+name+']').classList.add('active');
-  if (name === 'dashboard') renderDashboard();
-  if (name === 'products') renderTable();
-  if (name === 'settings') loadSettingsForm();
-  // close sidebar on mobile
+// ════════════════════════════════════════
+//  NAV
+// ════════════════════════════════════════
+function nav(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.sb-item').forEach(n=>n.classList.remove('on'));
+  document.getElementById('page-'+name).classList.add('on');
+  document.querySelector('[data-page='+name+']').classList.add('on');
   document.getElementById('sidebar').classList.remove('open');
 }
 
-function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('open');
+// ════════════════════════════════════════
+//  DASHBOARD
+// ════════════════════════════════════════
+const ICONS={Kitchen:'🍳',Clothes:'👕','Toy & Kids':'🧸',Food:'🍱',Medicine:'💊',Others:'📦'};
+const catIcon = c => ICONS[c]||'📦';
+
+function renderDash(){
+  const p=window._prods;
+  const cats=['Kitchen','Clothes','Toy & Kids','Food','Medicine','Others'];
+  document.getElementById('statsGrid').innerHTML=[
+    {v:p.length,l:'Total Produk',i:'📦'},
+    {v:p.reduce((s,x)=>s+x.stock,0),l:'Total Stok',i:'🔢'},
+    {v:p.filter(x=>x.stock===0).length,l:'Stok Habis',i:'❌'},
+    {v:p.filter(x=>x.stock>0&&x.stock<=3).length,l:'Stok Menipis',i:'⚠️'},
+    ...cats.map(c=>({v:p.filter(x=>(x.category||'Others')===c).length,l:c,i:catIcon(c)})).filter(x=>x.v>0)
+  ].map(s=>`<div class="stat"><div class="stat-val">${s.i} ${s.v}</div><div class="stat-lbl">${s.l}</div></div>`).join('');
+
+  document.getElementById('dashTbl').innerHTML = p.slice(0,10).map(x=>{
+    const pill = x.stock===0?'<span class="stk-pill stk-out">Habis</span>':x.stock<=3?`<span class="stk-pill stk-low">${x.stock} tersisa</span>`:`<span class="stk-pill stk-ok">${x.stock}</span>`;
+    return `<tr><td>${x.name}</td><td>${catIcon(x.category||'Others')} ${x.category||'Others'}</td><td>${x.currency||'£'}${x.price}</td><td>${pill}</td></tr>`;
+  }).join('')||'<tr><td colspan="4" style="text-align:center;padding:32px;color:#9CA3AF">Belum ada produk</td></tr>';
 }
 
-// ===================== HELPERS =====================
-function getCatIcon(cat) {
-  const icons = {'Kitchen':'🍳 ','Clothes':'👕 ','Toy & Kids':'🧸 ','Food':'🍱 ','Medicine':'💊 ','Others':'📦 '};
-  return icons[cat] || '📦 ';
+// ════════════════════════════════════════
+//  PRODUCT TABLE
+// ════════════════════════════════════════
+function renderTbl(){
+  const q=(document.getElementById('cmsSearch')?.value||'').toLowerCase();
+  const list=q?window._prods.filter(p=>p.name.toLowerCase().includes(q)||(p.desc||'').toLowerCase().includes(q)):window._prods;
+  document.getElementById('prodTbl').innerHTML=list.map(p=>{
+    const pill=p.stock===0?'<span class="stk-pill stk-out">Habis</span>':p.stock<=3?`<span class="stk-pill stk-low">${p.stock}</span>`:`<span class="stk-pill stk-ok">${p.stock}</span>`;
+    const thumb=p.imgs&&p.imgs[0]?`<img class="td-thumb" src="${p.imgs[0]}" alt="${p.name}">`:'<div style="width:48px;height:48px;background:#F3F4F6;border-radius:10px;display:flex;align-items:center;justify-content:center">📷</div>';
+    return `<tr>
+      <td>${thumb}</td>
+      <td><div class="td-name">${p.name}</div><div class="td-desc">${p.desc||''}</div></td>
+      <td>${catIcon(p.category||'Others')} ${p.category||'Others'}</td>
+      <td>${p.currency||'£'}${p.price}</td>
+      <td>${pill}</td>
+      <td><div class="actions">
+        <button class="btn btn-sm btn-success" onclick="openEdit('${p.id}')">✏️ Edit</button>
+        <button class="btn btn-sm btn-danger" onclick="askDelete('${p.id}','${p.name.replace(/'/g,"\\'")}')">🗑</button>
+      </div></td>
+    </tr>`;
+  }).join('')||'<tr><td colspan="6" style="text-align:center;padding:40px;color:#9CA3AF">Belum ada produk. Klik "+ Tambah Produk"</td></tr>';
 }
 
-// ===================== DASHBOARD =====================
-function renderDashboard() {
-  const products = loadProducts();
-  const totalProducts = products.length;
-  const totalStock = products.reduce((s,p) => s+p.stock, 0);
-  const outOfStock = products.filter(p => p.stock===0).length;
-  const lowStock = products.filter(p => p.stock>0 && p.stock<=3).length;
-
-  const cats = ['Kitchen','Clothes','Toy & Kids','Food','Medicine','Others'];
-  const catCounts = cats.map(c => ({ label: c, value: products.filter(p=>(p.category||'Others')===c).length, icon: getCatIcon(c) })).filter(c=>c.value>0);
-  const baseStats = [
-    { label: 'Total Produk', value: totalProducts, icon: '📦' },
-    { label: 'Total Stok', value: totalStock, icon: '🔢' },
-    { label: 'Stok Habis', value: outOfStock, icon: '❌' },
-    { label: 'Stok Menipis', value: lowStock, icon: '⚠️' },
-  ];
-  document.getElementById('statsGrid').innerHTML = [...baseStats, ...catCounts].map(s => '<div class="stat-card"><div class="stat-value">'+s.icon+' '+s.value+'</div><div class="stat-label">'+s.label+'</div></div>').join('');
-
-  document.getElementById('dashTable').innerHTML = products.slice(0,10).map(p => {
-    const pill = p.stock===0 ? '<span class="stock-pill stock-out">Habis</span>' : p.stock<=3 ? '<span class="stock-pill stock-low">Menipis</span>' : '<span class="stock-pill stock-ok">Tersedia</span>';
-    return '<tr>'+
-      '<td><strong>'+p.name+'</strong></td>'+
-      '<td>'+p.currency+p.price+'</td>'+
-      '<td>'+p.stock+'</td>'+
-      '<td>'+pill+'</td>'+
-    '</tr>';
-  }).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:2rem">Belum ada produk</td></tr>';
+// ════════════════════════════════════════
+//  MODAL
+// ════════════════════════════════════════
+function openAdd(){
+  editImgs=[];
+  document.getElementById('eId').value='';
+  document.getElementById('eName').value='';
+  document.getElementById('eDesc').value='';
+  document.getElementById('ePrice').value='';
+  document.getElementById('eStock').value='';
+  document.getElementById('eCurrency').value='£';
+  document.getElementById('eCategory').value='Others';
+  document.getElementById('previews').innerHTML='';
+  document.getElementById('modalTitle').textContent='Tambah Produk';
+  document.getElementById('prodModal').classList.add('on');
 }
 
-// ===================== PRODUCT TABLE =====================
-function renderTable() {
-  const products = loadProducts();
-  const q = (document.getElementById('cmsSearch')?.value || '').toLowerCase();
-  const list = q ? products.filter(p => p.name.toLowerCase().includes(q) || p.desc.toLowerCase().includes(q)) : products;
-
-  document.getElementById('productTable').innerHTML = list.map(p => {
-    const pill = p.stock===0 ? '<span class="stock-pill stock-out">Habis</span>' : p.stock<=3 ? '<span class="stock-pill stock-low">'+p.stock+' tersisa</span>' : '<span class="stock-pill stock-ok">'+p.stock+'</span>';
-    const thumb = p.imgs && p.imgs[0] ? '<img class="td-img" src="'+p.imgs[0]+'" alt="'+p.name+'">' : '<div style="width:52px;height:52px;background:#eee;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;">📷</div>';
-    return '<tr>'+
-      '<td>'+thumb+'</td>'+
-      '<td><div class="td-name">'+p.name+' <span style="font-size:.7rem;background:#f1f5f9;color:#666;padding:.12rem .45rem;border-radius:2rem;font-weight:400;">'+getCatIcon(p.category)+(p.category||'Others')+'</span></div><div class="td-desc">'+p.desc+'</div></td>'+
-      '<td>'+p.currency+p.price+'</td>'+
-      '<td>'+pill+'</td>'+
-      '<td><div class="actions">'+
-        '<button class="btn btn-sm btn-success" onclick="openEditModal('+p.id+')">✏️ Edit</button>'+
-        '<button class="btn btn-sm btn-danger" onclick="askDelete('+p.id+',\''+p.name.replace(/'/g,"\\'")+"'"+')">🗑</button>'+
-      '</div></td>'+
-    '</tr>';
-  }).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:2rem;">Belum ada produk</td></tr>';
+function openEdit(id){
+  const p=window._prods.find(x=>x.id===id); if(!p) return;
+  editImgs=(p.imgs||[]).map(url=>({type:'existing',url,preview:url}));
+  document.getElementById('eId').value=id;
+  document.getElementById('eName').value=p.name;
+  document.getElementById('eDesc').value=p.desc||'';
+  document.getElementById('ePrice').value=p.price;
+  document.getElementById('eStock').value=p.stock;
+  document.getElementById('eCurrency').value=p.currency||'£';
+  document.getElementById('eCategory').value=p.category||'Others';
+  document.getElementById('modalTitle').textContent='Edit Produk';
+  renderPreviews();
+  document.getElementById('prodModal').classList.add('on');
 }
 
-// ===================== MODAL =====================
-let editImgs = [];
-let deleteId = null;
+function closeModal(){ document.getElementById('prodModal').classList.remove('on'); editImgs=[]; }
 
-function openAddModal() {
-  editImgs = [];
-  document.getElementById('editId').value = '';
-  document.getElementById('editName').value = '';
-  document.getElementById('editDesc').value = '';
-  document.getElementById('editPrice').value = '';
-  document.getElementById('editStock').value = '';
-  const s = loadSettings();
-  document.getElementById('editCurrency').value = s.currency || '£';
-  document.getElementById('editCategory').value = 'Others';
-  document.getElementById('imgPreviewList').innerHTML = '';
-  document.getElementById('modalTitle').textContent = 'Tambah Produk';
-  document.getElementById('productModal').classList.add('show');
-}
-
-function openEditModal(id) {
-  const products = loadProducts();
-  const p = products.find(x => x.id === id);
-  if (!p) return;
-  editImgs = [...(p.imgs || [])];
-  document.getElementById('editId').value = id;
-  document.getElementById('editName').value = p.name;
-  document.getElementById('editDesc').value = p.desc;
-  document.getElementById('editPrice').value = p.price;
-  document.getElementById('editStock').value = p.stock;
-  document.getElementById('editCurrency').value = p.currency;
-  document.getElementById('editCategory').value = p.category || 'Others';
-  document.getElementById('modalTitle').textContent = 'Edit Produk';
-  renderImgPreviews();
-  document.getElementById('productModal').classList.add('show');
-}
-
-function closeModal() {
-  document.getElementById('productModal').classList.remove('show');
-  editImgs = [];
-}
-
-function saveProduct() {
-  const name = document.getElementById('editName').value.trim();
-  if (!name) { showToast('⚠️ Nama produk wajib diisi!'); return; }
-
-  const products = loadProducts();
-  const idVal = document.getElementById('editId').value;
-  const product = {
-    id: idVal ? parseInt(idVal) : Date.now(),
-    name,
-    desc: document.getElementById('editDesc').value.trim(),
-    price: parseFloat(document.getElementById('editPrice').value) || 0,
-    stock: parseInt(document.getElementById('editStock').value) || 0,
-    currency: document.getElementById('editCurrency').value,
-    category: document.getElementById('editCategory').value,
-    imgs: editImgs
+async function saveProduct(){
+  const name=document.getElementById('eName').value.trim();
+  if(!name){ toast('⚠️ Nama produk wajib diisi!'); return; }
+  const id=document.getElementById('eId').value||null;
+  const data={
+    name, desc:document.getElementById('eDesc').value.trim(),
+    price:parseFloat(document.getElementById('ePrice').value)||0,
+    stock:parseInt(document.getElementById('eStock').value)||0,
+    currency:document.getElementById('eCurrency').value,
+    category:document.getElementById('eCategory').value,
+    existingImgs:editImgs.filter(i=>i.type==='existing').map(i=>i.url)
   };
+  const newFiles=editImgs.filter(i=>i.type==='new').map(i=>i.file);
+  const removedUrls=[];
+  if(id){ const orig=window._prods.find(x=>x.id===id); if(orig) (orig.imgs||[]).forEach(u=>{ if(!data.existingImgs.includes(u)) removedUrls.push(u); }); }
 
-  if (idVal) {
-    const idx = products.findIndex(p => p.id === parseInt(idVal));
-    if (idx >= 0) products[idx] = product;
+  if(window._saveProductFirebase){
+    await window._saveProductFirebase(data, id, newFiles, removedUrls);
   } else {
-    products.push(product);
+    // Fallback: no Firebase, use localStorage
+    const prods=JSON.parse(localStorage.getItem('preloved_products_v1')||'[]');
+    const imgs=[...data.existingImgs,...editImgs.filter(i=>i.type==='new').map(i=>i.preview)];
+    const prod={...data,imgs,id:id||Date.now()};
+    delete prod.existingImgs;
+    if(id){ const idx=prods.findIndex(x=>x.id==id); if(idx>=0)prods[idx]=prod; else prods.push(prod); }
+    else prods.push(prod);
+    localStorage.setItem('preloved_products_v1',JSON.stringify(prods));
+    window._prods=prods; renderTbl(); renderDash(); closeModal(); toast('✅ Disimpan!');
   }
-
-  saveProducts(products);
-  closeModal();
-  renderTable();
-  renderDashboard();
-  showToast('✅ Produk berhasil disimpan!');
 }
 
-// ===================== DELETE =====================
-function askDelete(id, name) {
-  deleteId = id;
-  document.getElementById('confirmSub').textContent = 'Hapus "'+name+'"? Tindakan ini tidak bisa dibatalkan.';
-  document.getElementById('confirmModal').classList.add('show');
+// ════════════════════════════════════════
+//  DELETE
+// ════════════════════════════════════════
+function askDelete(id,name){
+  deleteTarget=id;
+  document.getElementById('confirmSub').textContent=`Hapus "${name}"? Tindakan ini tidak bisa dibatalkan.`;
+  document.getElementById('confirmModal').classList.add('on');
+}
+function closeConfirm(){ document.getElementById('confirmModal').classList.remove('on'); deleteTarget=null; }
+async function doDelete(){
+  if(!deleteTarget) return;
+  const p=window._prods.find(x=>x.id===deleteTarget);
+  if(window._deleteProductFirebase){ await window._deleteProductFirebase(deleteTarget, p?.imgs||[]); }
+  else {
+    const prods=JSON.parse(localStorage.getItem('preloved_products_v1')||'[]').filter(x=>x.id!=deleteTarget);
+    localStorage.setItem('preloved_products_v1',JSON.stringify(prods));
+    window._prods=prods; renderTbl(); renderDash(); closeConfirm(); toast('🗑 Dihapus');
+  }
 }
 
-function closeConfirm() { document.getElementById('confirmModal').classList.remove('show'); deleteId = null; }
-
-function confirmDelete() {
-  if (!deleteId) return;
-  const products = loadProducts().filter(p => p.id !== deleteId);
-  saveProducts(products);
-  closeConfirm();
-  renderTable();
-  renderDashboard();
-  showToast('🗑 Produk dihapus');
-}
-
-// ===================== IMAGE HANDLING =====================
-function handleImgFiles(files) {
-  Array.from(files).forEach(file => {
-    const reader = new FileReader();
-    reader.onload = e => {
-      editImgs.push(e.target.result);
-      renderImgPreviews();
-    };
+// ════════════════════════════════════════
+//  IMAGE UPLOAD
+// ════════════════════════════════════════
+function handleFiles(files){
+  Array.from(files).forEach(file=>{
+    const reader=new FileReader();
+    reader.onload=e=>{ editImgs.push({type:'new',file,preview:e.target.result}); renderPreviews(); };
     reader.readAsDataURL(file);
   });
 }
-
-function removeImg(idx) {
-  editImgs.splice(idx, 1);
-  renderImgPreviews();
-}
-
-function renderImgPreviews() {
-  document.getElementById('imgPreviewList').innerHTML = editImgs.map((src, i) =>
-    '<div class="img-preview-item">'+
-      '<img src="'+src+'" alt="preview '+i+'">'+
-      '<button class="img-remove" onclick="removeImg('+i+')">✕</button>'+
-    '</div>'
+function removeImg(idx){ editImgs.splice(idx,1); renderPreviews(); }
+function renderPreviews(){
+  document.getElementById('previews').innerHTML=editImgs.map((img,i)=>
+    `<div class="prev-item"><img src="${img.preview}" alt="preview"><button class="prev-del" onclick="removeImg(${i})">✕</button></div>`
   ).join('');
 }
+function onDragOver(e){ e.preventDefault(); document.getElementById('uploadZone').classList.add('drag'); }
+function onDragLeave(){ document.getElementById('uploadZone').classList.remove('drag'); }
+function onDrop(e){ e.preventDefault(); onDragLeave(); handleFiles(e.dataTransfer.files); }
 
-function onDragOver(e) { e.preventDefault(); document.getElementById('uploadArea').classList.add('dragover'); }
-function onDrop(e) {
-  e.preventDefault();
-  document.getElementById('uploadArea').classList.remove('dragover');
-  handleImgFiles(e.dataTransfer.files);
+// ════════════════════════════════════════
+//  SETTINGS
+// ════════════════════════════════════════
+function loadSettings(){ try{ return JSON.parse(localStorage.getItem('preloved_settings_v1')||'{}'); }catch(_){return{};} }
+function loadSettingsForm(){
+  const s=loadSettings();
+  document.getElementById('sWA').value=s.wa||'628114140218';
+  document.getElementById('sName').value=s.storeName||'Preloved Items';
+  document.getElementById('sCurrency').value=s.currency||'£';
+  document.getElementById('sEmails').value=(s.allowedEmails||[]).join('\n');
+}
+function saveSettings(){
+  const emails=document.getElementById('sEmails').value.split('\n').map(e=>e.trim()).filter(Boolean);
+  localStorage.setItem('preloved_settings_v1',JSON.stringify({
+    wa:document.getElementById('sWA').value.trim(),
+    storeName:document.getElementById('sName').value.trim(),
+    currency:document.getElementById('sCurrency').value,
+    allowedEmails:emails
+  }));
+  toast('✅ Pengaturan disimpan!');
 }
 
-// ===================== SETTINGS =====================
-function loadSettingsForm() {
-  const s = loadSettings();
-  document.getElementById('settingWA').value = s.wa || '';
-  document.getElementById('settingName').value = s.storeName || '';
-  document.getElementById('settingCurrency').value = s.currency || '£';
-  document.getElementById('settingEmails').value = (s.allowedEmails || []).join('\n');
-}
-
-function saveSettings() {
-  const emails = document.getElementById('settingEmails').value.split('\n').map(e=>e.trim()).filter(Boolean);
-  saveSettingsData({
-    wa: document.getElementById('settingWA').value.trim(),
-    storeName: document.getElementById('settingName').value.trim(),
-    currency: document.getElementById('settingCurrency').value,
-    allowedEmails: emails
-  });
-  showToast('✅ Pengaturan disimpan!');
-}
-
-// ===================== TOAST =====================
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2800);
-}
-
-// ===================== INIT =====================
-window.addEventListener('load', () => {
-  // Try Google Sign In if library loaded
-  if (typeof google !== 'undefined') initGoogleSignIn();
-  else window.onGoogleLibraryLoad = initGoogleSignIn;
-});
+// ════════════════════════════════════════
+//  UTILS
+// ════════════════════════════════════════
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('on'); setTimeout(()=>t.classList.remove('on'),2800); }
+function showLoading(v){ document.getElementById('loadingOverlay').classList.toggle('on',v); }
 </script>
 </body>
 </html>
