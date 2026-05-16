@@ -474,7 +474,7 @@ function onLoginSuccess(){
   document.getElementById('uEmail').textContent  = u.email;
   if(u.photo) document.getElementById('uAvatar').src = u.photo;
   const h = new Date().getHours();
-  document.getElementById('greeting').textContent = (h<12?'Selamat pagi':'h<17?Selamat siang':'Selamat malam')+', '+u.name+'!';
+  document.getElementById('greeting').textContent = (h<12?'Selamat pagi':h<17?'Selamat siang':'Selamat malam')+', '+u.name+'!';
   loadSettingsForm();
   if(window._subscribeProducts) window._subscribeProducts();
   else { window._prods=[]; renderTbl(); renderDash(); }
