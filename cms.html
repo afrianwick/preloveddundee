@@ -414,14 +414,13 @@ window._firebaseAuthReady = true;
 // ── Auth state ──
 onAuthStateChanged(auth, user => {
   if(user) {
-    const settings = loadSettings();
+    const settings = (window.loadSettings ? window.loadSettings() : {});
     const allowed = (settings.allowedEmails||[]).filter(e=>e.trim());
     if(allowed.length && !allowed.includes(user.email)){
       toast('❌ Email tidak diizinkan: '+user.email);
       signOut(auth); return;
     }
-    window._currentUser = { name:user.displayName||user.email, email:user.email, photo:user.photoURL||'' };
-    onLoginSuccess();
+    if(window.onLoginSuccess){ window.onLoginSuccess(user); }
   }
 });
 
@@ -752,6 +751,8 @@ function onDrop(e){ e.preventDefault(); onDragLeave(); handleFiles(e.dataTransfe
 //  SETTINGS
 // ════════════════════════════════════════
 function loadSettings(){ try{ return JSON.parse(localStorage.getItem('preloved_settings_v1')||'{}'); }catch(_){return{};} }
+window.loadSettings = loadSettings;
+window.onLoginSuccess = function(user){ window._currentUser = { name:user.displayName||user.email, email:user.email, photo:user.photoURL||'' }; onLoginSuccess(); };
 function loadSettingsForm(){
   const s=loadSettings();
   document.getElementById('sWA').value=s.wa||'628114140218';
@@ -821,14 +822,14 @@ function updateCatSelect(){
   if(cur) sel.value = cur;
 }
 
-function updateCatName(idx, val){
+async function updateCatName(idx, val){
   const cats = loadCategories();
   cats[idx].name = val;
-  saveCategoriesToStorage(cats);
+  await saveCategoriesToStorage(cats);
   updateCatSelect();
 }
 
-function deleteCat(idx){
+async function deleteCat(idx){
   const cats = loadCategories();
   if(cats.length <= 1){ toast('⚠️ Minimal harus ada 1 kategori'); return; }
   cats.splice(idx,1);
@@ -837,7 +838,7 @@ function deleteCat(idx){
   toast('🗑 Kategori dihapus');
 }
 
-function addCategory(){
+async function addCategory(){
   const name = document.getElementById('newCatName').value.trim();
   const icon = document.getElementById('newCatEmoji').textContent.trim();
   if(!name){ toast('⚠️ Isi nama kategori dulu'); return; }
