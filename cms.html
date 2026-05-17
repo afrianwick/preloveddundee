@@ -199,7 +199,7 @@ textarea{resize:vertical;min-height:80px;line-height:1.5}
 
     <div class="login-divider">atau</div>
 
-    <button class="btn-local" onclick="loginLocal()">🔑 Masuk sebagai Admin (Testing)</button>
+    <button class="btn-local" onclick="window._loginLocal()">🔑 Masuk sebagai Admin (Testing)</button>
     <div class="login-note">Login lokal hanya untuk testing di komputer sendiri.<br>Untuk produksi, gunakan Google Login.</div>
   </div>
 </div>
@@ -215,10 +215,10 @@ textarea{resize:vertical;min-height:80px;line-height:1.5}
         <div class="sb-brandsub">Panel Admin</div>
       </div>
       <nav class="sb-nav">
-        <div class="sb-item on" data-page="dashboard" onclick="nav('dashboard')"><span class="ico">📊</span>Dashboard</div>
-        <div class="sb-item" data-page="products" onclick="nav('products')"><span class="ico">📦</span>Produk</div>
-        <div class="sb-item" data-page="categories" onclick="nav('categories')"><span class="ico">🏷️</span>Kategori</div>
-        <div class="sb-item" data-page="settings" onclick="nav('settings')"><span class="ico">⚙️</span>Pengaturan</div>
+        <div class="sb-item on" data-page="dashboard" onclick="window._nav('dashboard')"><span class="ico">📊</span>Dashboard</div>
+        <div class="sb-item" data-page="products" onclick="window._nav('products')"><span class="ico">📦</span>Produk</div>
+        <div class="sb-item" data-page="categories" onclick="window._nav('categories')"><span class="ico">🏷️</span>Kategori</div>
+        <div class="sb-item" data-page="settings" onclick="window._nav('settings')"><span class="ico">⚙️</span>Pengaturan</div>
       </nav>
       <div class="sb-user">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
@@ -228,7 +228,7 @@ textarea{resize:vertical;min-height:80px;line-height:1.5}
             <div class="sb-uemail" id="uEmail"></div>
           </div>
         </div>
-        <button class="btn-logout" onclick="logout()">🚪 Keluar</button>
+        <button class="btn-logout" onclick="window._logout()">🚪 Keluar</button>
       </div>
     </aside>
 
@@ -252,9 +252,9 @@ textarea{resize:vertical;min-height:80px;line-height:1.5}
         <div class="toolbar">
           <div class="search-field">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-            <input type="text" id="cmsSearch" placeholder="Cari produk…" oninput="renderTbl()">
+            <input type="text" id="cmsSearch" placeholder="Cari produk…" oninput="window._renderTbl()">
           </div>
-          <button class="btn btn-primary" onclick="openAdd()">＋ Tambah Produk</button>
+          <button class="btn btn-primary" onclick="window._openAdd()">＋ Tambah Produk</button>
         </div>
         <div class="tbl-wrap">
           <table><thead><tr><th>Foto</th><th>Nama & Deskripsi</th><th>Kategori</th><th>Harga</th><th>Stok</th><th>Aksi</th></tr></thead>
@@ -273,27 +273,27 @@ textarea{resize:vertical;min-height:80px;line-height:1.5}
             <label>Tambah Kategori Baru</label>
             <div class="add-cat-row" style="margin-top:6px">
               <div style="position:relative">
-                <button style="width:48px;height:44px;border:1.5px solid var(--gray-200);border-radius:12px;background:var(--white);font-size:20px;cursor:pointer" onclick="toggleEmojiPicker()" id="newCatEmoji">📦</button>
+                <button style="width:48px;height:44px;border:1.5px solid var(--gray-200);border-radius:12px;background:var(--white);font-size:20px;cursor:pointer" onclick="window._toggleEmojiPicker()" id="newCatEmoji">📦</button>
                 <div class="emoji-picker" id="emojiPicker">
-                  <span class="epick" onclick="pickEmoji('🍳')">🍳</span><span class="epick" onclick="pickEmoji('🍱')">🍱</span>
-                  <span class="epick" onclick="pickEmoji('🥤')">🥤</span><span class="epick" onclick="pickEmoji('🍫')">🍫</span>
-                  <span class="epick" onclick="pickEmoji('👕')">👕</span><span class="epick" onclick="pickEmoji('👗')">👗</span>
-                  <span class="epick" onclick="pickEmoji('👟')">👟</span><span class="epick" onclick="pickEmoji('👜')">👜</span>
-                  <span class="epick" onclick="pickEmoji('🧸')">🧸</span><span class="epick" onclick="pickEmoji('🎮')">🎮</span>
-                  <span class="epick" onclick="pickEmoji('🎨')">🎨</span><span class="epick" onclick="pickEmoji('📚')">📚</span>
-                  <span class="epick" onclick="pickEmoji('💊')">💊</span><span class="epick" onclick="pickEmoji('🧴')">🧴</span>
-                  <span class="epick" onclick="pickEmoji('🪴')">🪴</span><span class="epick" onclick="pickEmoji('🛋️')">🛋️</span>
-                  <span class="epick" onclick="pickEmoji('📦')">📦</span><span class="epick" onclick="pickEmoji('⚽')">⚽</span>
-                  <span class="epick" onclick="pickEmoji('🎵')">🎵</span><span class="epick" onclick="pickEmoji('💻')">💻</span>
-                  <span class="epick" onclick="pickEmoji('📷')">📷</span><span class="epick" onclick="pickEmoji('🔧')">🔧</span>
+                  <span class="epick" onclick="window._pickEmoji('🍳')">🍳</span><span class="epick" onclick="window._pickEmoji('🍱')">🍱</span>
+                  <span class="epick" onclick="window._pickEmoji('🥤')">🥤</span><span class="epick" onclick="window._pickEmoji('🍫')">🍫</span>
+                  <span class="epick" onclick="window._pickEmoji('👕')">👕</span><span class="epick" onclick="window._pickEmoji('👗')">👗</span>
+                  <span class="epick" onclick="window._pickEmoji('👟')">👟</span><span class="epick" onclick="window._pickEmoji('👜')">👜</span>
+                  <span class="epick" onclick="window._pickEmoji('🧸')">🧸</span><span class="epick" onclick="window._pickEmoji('🎮')">🎮</span>
+                  <span class="epick" onclick="window._pickEmoji('🎨')">🎨</span><span class="epick" onclick="window._pickEmoji('📚')">📚</span>
+                  <span class="epick" onclick="window._pickEmoji('💊')">💊</span><span class="epick" onclick="window._pickEmoji('🧴')">🧴</span>
+                  <span class="epick" onclick="window._pickEmoji('🪴')">🪴</span><span class="epick" onclick="window._pickEmoji('🛋️')">🛋️</span>
+                  <span class="epick" onclick="window._pickEmoji('📦')">📦</span><span class="epick" onclick="window._pickEmoji('⚽')">⚽</span>
+                  <span class="epick" onclick="window._pickEmoji('🎵')">🎵</span><span class="epick" onclick="window._pickEmoji('💻')">💻</span>
+                  <span class="epick" onclick="window._pickEmoji('📷')">📷</span><span class="epick" onclick="window._pickEmoji('🔧')">🔧</span>
                 </div>
               </div>
               <input type="text" id="newCatName" placeholder="Nama kategori baru…" style="flex:1">
-              <button class="btn btn-primary" onclick="addCategory()">＋ Tambah</button>
+              <button class="btn btn-primary" onclick="window._addCategory()">＋ Tambah</button>
             </div>
           </div>
           <div style="margin-top:16px;display:flex;justify-content:flex-end">
-            <button class="btn btn-primary" onclick="saveCategories()">💾 Simpan Perubahan</button>
+            <button class="btn btn-primary" onclick="window._saveCategories()">💾 Simpan Perubahan</button>
           </div>
         </div>
       </div>
@@ -311,7 +311,7 @@ textarea{resize:vertical;min-height:80px;line-height:1.5}
           <div class="fg"><label>Email Admin (satu per baris, kosong = semua bisa masuk)</label>
             <textarea id="sEmails" placeholder="email@gmail.com&#10;email2@gmail.com"></textarea>
           </div>
-          <button class="btn btn-primary" onclick="saveSettings()">💾 Simpan</button>
+          <button class="btn btn-primary" onclick="window._saveSettings()">💾 Simpan</button>
         </div>
       </div>
     </main>
@@ -323,7 +323,7 @@ textarea{resize:vertical;min-height:80px;line-height:1.5}
   <div class="modal">
     <div class="modal-head">
       <span class="modal-title" id="modalTitle">Tambah Produk</span>
-      <button class="modal-close" onclick="closeModal()">✕</button>
+      <button class="modal-close" onclick="window._closeModal()">✕</button>
     </div>
     <div class="modal-body">
       <input type="hidden" id="eId">
@@ -348,13 +348,13 @@ textarea{resize:vertical;min-height:80px;line-height:1.5}
           <p>Klik atau <strong>drag foto</strong> ke sini</p>
           <p style="font-size:11px;margin-top:4px;color:#9CA3AF">JPG, PNG, WEBP · Bisa lebih dari 1 foto</p>
         </div>
-        <input type="file" id="fileInput" multiple accept="image/*" style="display:none" onchange="handleFiles(this.files)">
+        <input type="file" id="fileInput" multiple accept="image/*" style="display:none" onchange="window._handleFiles(this.files)">
         <div class="previews" id="previews"></div>
       </div>
     </div>
     <div class="modal-foot">
-      <button class="btn" style="background:var(--gray-100);color:var(--gray-900)" onclick="closeModal()">Batal</button>
-      <button class="btn btn-primary" onclick="saveProduct()">💾 Simpan</button>
+      <button class="btn" style="background:var(--gray-100);color:var(--gray-900)" onclick="window._closeModal()">Batal</button>
+      <button class="btn btn-primary" onclick="window._saveProduct()">💾 Simpan</button>
     </div>
   </div>
 </div>
@@ -366,8 +366,8 @@ textarea{resize:vertical;min-height:80px;line-height:1.5}
     <div class="confirm-title">Hapus Produk?</div>
     <div class="confirm-sub" id="confirmSub">Tindakan ini tidak bisa dibatalkan.</div>
     <div class="confirm-btns">
-      <button class="btn" style="background:var(--gray-100);color:var(--gray-900)" onclick="closeConfirm()">Batal</button>
-      <button class="btn btn-danger" onclick="doDelete()">Hapus</button>
+      <button class="btn" style="background:var(--gray-100);color:var(--gray-900)" onclick="window._closeConfirm()">Batal</button>
+      <button class="btn btn-danger" onclick="window._deleteProduct()">Hapus</button>
     </div>
   </div>
 </div>
@@ -377,17 +377,16 @@ textarea{resize:vertical;min-height:80px;line-height:1.5}
 
 <!-- ══ FIREBASE ══ -->
 <script type="module">
+// ════════════════════════════════════════
+//  FIREBASE INIT
+// ════════════════════════════════════════
 import { initializeApp }    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
                             from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy, serverTimestamp }
+import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc,
+         onSnapshot, query, orderBy, serverTimestamp, getDoc, setDoc }
                             from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject }
-                            from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
-// ════════════════════════════════════════════
-//  🔥 GANTI DENGAN CONFIG FIREBASE KAMU
-// ════════════════════════════════════════════
 const firebaseConfig = {
   apiKey:            "AIzaSyAz5aKKh44Fb7ai8hnpbEjqEDNmyJfNCxY",
   authDomain:        "preloveddundee.firebaseapp.com",
@@ -401,61 +400,202 @@ const firebaseConfig = {
 const app      = initializeApp(firebaseConfig);
 const auth     = getAuth(app);
 const db       = getFirestore(app);
-const storage  = getStorage(app);
 const provider = new GoogleAuthProvider();
 
-// ── Google Sign-In ──
-window._auth    = auth;
-window._provider = provider;
-window._signInWithPopup = signInWithPopup;
-window._signOut = signOut;
-window._firebaseAuthReady = true;
+// ════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════
+let _prods   = [];
+let _user    = null;
+let _unsub   = null;
+let editImgs = [];
+let delTarget = null;
 
-// ── Auth state ──
-onAuthStateChanged(auth, user => {
-  if(user) {
-    const settings = (window.loadSettings ? window.loadSettings() : {});
+const DEFAULT_CATS = [
+  {icon:'🍳',name:'Kitchen'},{icon:'👕',name:'Clothes'},{icon:'🧸',name:'Toy & Kids'},
+  {icon:'🍱',name:'Food'},{icon:'💊',name:'Medicine'},{icon:'📦',name:'Others'}
+];
+const ICONS = {Kitchen:'🍳',Clothes:'👕','Toy & Kids':'🧸',Food:'🍱',Medicine:'💊',Others:'📦'};
+const catIcon = c => ICONS[c]||'📦';
+
+// ════════════════════════════════════════
+//  SETTINGS (localStorage)
+// ════════════════════════════════════════
+function loadSettings(){
+  try{ return JSON.parse(localStorage.getItem('preloved_settings_v1')||'{}'); }catch(_){return{};}
+}
+function saveSettingsData(data){
+  localStorage.setItem('preloved_settings_v1', JSON.stringify(data));
+}
+
+// ════════════════════════════════════════
+//  CATEGORIES
+// ════════════════════════════════════════
+function loadCategoriesLocal(){
+  try{ return JSON.parse(localStorage.getItem('preloved_categories_v1')||'null') || DEFAULT_CATS; }catch(_){ return DEFAULT_CATS; }
+}
+
+async function saveCats(cats){
+  localStorage.setItem('preloved_categories_v1', JSON.stringify(cats));
+  try {
+    await setDoc(doc(db,'config','categories'), { list: cats });
+  } catch(e){ console.warn('Firebase cat save failed:', e); }
+}
+
+async function loadCatsFromFirebase(){
+  try{
+    const snap = await getDoc(doc(db,'config','categories'));
+    if(snap.exists()){
+      const data = snap.data().list||[];
+      if(data.length){ localStorage.setItem('preloved_categories_v1', JSON.stringify(data)); return data; }
+    }
+  }catch(e){ console.warn('Firebase cat load failed:', e); }
+  return loadCategoriesLocal();
+}
+
+function renderCatList(){
+  const cats = loadCategoriesLocal();
+  document.getElementById('catList').innerHTML = cats.map((c,i) => `
+    <div class="cat-row" id="catrow-${i}">
+      <span class="cat-icon-pick" onclick="window._openEmojiRow(${i})">${c.icon}</span>
+      <input class="cat-name-input" value="${c.name}" onchange="window._updateCatName(${i},this.value)" placeholder="Nama kategori">
+      <button class="cat-del-btn" onclick="window._deleteCat(${i})">🗑</button>
+    </div>
+  `).join('');
+  updateCatSelect();
+}
+
+function updateCatSelect(){
+  const cats = loadCategoriesLocal();
+  const sel = document.getElementById('eCategory');
+  if(!sel) return;
+  const cur = sel.value;
+  sel.innerHTML = cats.map(c=>`<option value="${c.name}">${c.icon} ${c.name}</option>`).join('');
+  if(cur) sel.value = cur;
+}
+
+window._updateCatName = async (idx, val) => {
+  const cats = loadCategoriesLocal(); cats[idx].name = val;
+  await saveCats(cats); updateCatSelect();
+};
+
+window._deleteCat = async (idx) => {
+  const cats = loadCategoriesLocal();
+  if(cats.length<=1){ toast('⚠️ Minimal 1 kategori'); return; }
+  cats.splice(idx,1); await saveCats(cats); renderCatList(); toast('🗑 Kategori dihapus');
+};
+
+window._addCategory = async () => {
+  const name = document.getElementById('newCatName').value.trim();
+  const icon = document.getElementById('newCatEmoji').textContent.trim();
+  if(!name){ toast('⚠️ Isi nama kategori'); return; }
+  const cats = loadCategoriesLocal();
+  if(cats.find(c=>c.name.toLowerCase()===name.toLowerCase())){ toast('⚠️ Kategori sudah ada'); return; }
+  cats.push({icon,name}); await saveCats(cats);
+  document.getElementById('newCatName').value='';
+  document.getElementById('newCatEmoji').textContent='📦';
+  renderCatList(); toast('✅ Kategori ditambahkan!');
+};
+
+window._saveCategories = async () => {
+  await saveCats(loadCategoriesLocal());
+  renderCatList(); toast('✅ Kategori disimpan!');
+};
+
+// ════════════════════════════════════════
+//  AUTH
+// ════════════════════════════════════════
+window._googleLogin = async () => {
+  const btn = document.getElementById('googleLoginBtn');
+  if(btn){ btn.disabled=true; btn.textContent='⏳ Menghubungkan…'; }
+  try {
+    await signInWithPopup(auth, provider);
+  } catch(e){
+    console.error(e);
+    toast('❌ Login gagal: '+(e.message||e.code));
+    if(btn){ btn.disabled=false; btn.textContent='Masuk dengan Google'; }
+  }
+};
+
+window._loginLocal = () => {
+  _user = { name:'Admin (Lokal)', email:'admin@local', photo:'' };
+  onLoginSuccess();
+};
+
+window._logout = async () => {
+  try{ await signOut(auth); }catch(_){}
+  _user = null;
+  if(_unsub){ _unsub(); _unsub=null; }
+  document.getElementById('login').style.display = 'flex';
+  document.getElementById('app').style.display   = 'none';
+};
+
+onAuthStateChanged(auth, async user => {
+  if(user){
+    const settings = loadSettings();
     const allowed = (settings.allowedEmails||[]).filter(e=>e.trim());
     if(allowed.length && !allowed.includes(user.email)){
       toast('❌ Email tidak diizinkan: '+user.email);
-      signOut(auth); return;
+      await signOut(auth); return;
     }
-    if(window.onLoginSuccess){ window.onLoginSuccess(user); }
+    _user = { name:user.displayName||user.email, email:user.email, photo:user.photoURL||'' };
+    onLoginSuccess();
   }
 });
 
-// ── Realtime product listener ──
-window._unsubProducts = null;
+function onLoginSuccess(){
+  document.getElementById('login').style.display = 'none';
+  document.getElementById('app').style.display   = 'block';
+  document.getElementById('uName').textContent   = _user.name;
+  document.getElementById('uEmail').textContent  = _user.email;
+  if(_user.photo) document.getElementById('uAvatar').src = _user.photo;
+  const h=new Date().getHours();
+  document.getElementById('greeting').textContent =
+    (h<12?'Selamat pagi':h<17?'Selamat siang':'Selamat malam')+', '+_user.name+'!';
+  loadSettingsForm();
+  subscribeProducts();
+  loadCatsFromFirebase().then(()=>{ renderCatList(); updateCatSelect(); });
+}
+
+// ════════════════════════════════════════
+//  PRODUCTS - REALTIME
+// ════════════════════════════════════════
 function subscribeProducts(){
-  if(window._unsubProducts) window._unsubProducts();
-  window._unsubProducts = onSnapshot(
+  if(_unsub) _unsub();
+  _unsub = onSnapshot(
     query(collection(db,'products'), orderBy('createdAt','desc')),
     snap => {
-      window._prods = snap.docs.map(d=>({id:d.id,...d.data()}));
+      _prods = snap.docs.map(d=>({id:d.id,...d.data()}));
       renderTbl(); renderDash();
-    }
+    },
+    err => { console.error(err); toast('❌ Firestore error: '+err.message); }
   );
 }
 
-// ── Save product ──
-window._saveProductFirebase = async (data, id, newImgFiles, removedUrls) => {
+// ════════════════════════════════════════
+//  PRODUCTS - CRUD
+// ════════════════════════════════════════
+window._saveProduct = async () => {
+  const name = document.getElementById('eName').value.trim();
+  if(!name){ toast('⚠️ Nama produk wajib diisi!'); return; }
+  const id = document.getElementById('eId').value||null;
+
+  // Convert new images to base64 (no Storage needed)
+  const newImgPreviews = editImgs.filter(i=>i.type==='new').map(i=>i.preview);
+  const existingImgs   = editImgs.filter(i=>i.type==='existing').map(i=>i.url);
+  const finalImgs      = [...existingImgs, ...newImgPreviews];
+
+  const payload = {
+    name, desc: document.getElementById('eDesc').value.trim(),
+    price: parseFloat(document.getElementById('ePrice').value)||0,
+    stock: parseInt(document.getElementById('eStock').value)||0,
+    currency: document.getElementById('eCurrency').value,
+    category: document.getElementById('eCategory').value,
+    imgs: finalImgs
+  };
+
   showLoading(true);
-  try {
-    // Delete removed images from Storage
-    for(const url of removedUrls){
-      try { const r=ref(storage, url); await deleteObject(r); } catch(_){}
-    }
-    // Upload new images
-    const uploadedUrls = [];
-    for(const file of newImgFiles){
-      const r = ref(storage, `products/${Date.now()}_${file.name}`);
-      const snap = await uploadBytes(r, file);
-      const url = await getDownloadURL(snap.ref);
-      uploadedUrls.push(url);
-    }
-    // Merge existing URLs + new URLs
-    const finalImgs = [...(data.existingImgs||[]), ...uploadedUrls];
-    const payload = { name:data.name, desc:data.desc, price:data.price, stock:data.stock, currency:data.currency, category:data.category, imgs:finalImgs };
+  try{
     if(id){
       await updateDoc(doc(db,'products',id), payload);
       toast('✅ Produk diupdate!');
@@ -465,156 +605,50 @@ window._saveProductFirebase = async (data, id, newImgFiles, removedUrls) => {
       toast('✅ Produk ditambahkan!');
     }
     closeModal();
-  } catch(e) {
-    console.error(e); toast('❌ Gagal menyimpan: '+e.message);
-  }
+  }catch(e){ toast('❌ Gagal simpan: '+e.message); }
   showLoading(false);
 };
 
-// ── Delete product ──
-window._deleteProductFirebase = async (id, imgs) => {
+window._deleteProduct = async () => {
+  if(!delTarget) return;
   showLoading(true);
-  try {
-    for(const url of (imgs||[])){
-      try { await deleteObject(ref(storage,url)); } catch(_){}
-    }
-    await deleteDoc(doc(db,'products',id));
+  try{
+    await deleteDoc(doc(db,'products',delTarget));
     toast('🗑 Produk dihapus');
-  } catch(e) { toast('❌ Gagal hapus: '+e.message); }
+  }catch(e){ toast('❌ Gagal hapus: '+e.message); }
   showLoading(false);
   closeConfirm();
 };
 
-// ── Logout ──
-window._firebaseLogout = () => window._signOut(window._auth);
-
-// ── Categories: load from Firestore ──
-async function loadCategoriesFromFirebase() {
-  try {
-    const { getDoc, doc: fdoc, setDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
-    const snap = await getDoc(fdoc(db, "config", "categories"));
-    if (snap.exists()) {
-      const data = snap.data().list || [];
-      if (data.length) {
-        localStorage.setItem('preloved_categories_v1', JSON.stringify(data));
-        if (window.renderCatList) window.renderCatList();
-        if (window.updateCatSelect) window.updateCatSelect();
-      }
-    }
-  } catch(e) { console.warn("Could not load categories from Firebase:", e); }
-}
-
-async function saveCategoriesToFirebase(cats) {
-  try {
-    const { doc: fdoc, setDoc } = await import("https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js");
-    await setDoc(fdoc(db, "config", "categories"), { list: cats });
-    return true;
-  } catch(e) { console.error("Could not save categories:", e); return false; }
-}
-
-// ── Init ──
-window._firebaseReady = true;
-window._subscribeProducts = subscribeProducts;
-window._loadCategoriesFromFirebase = loadCategoriesFromFirebase;
-window._saveCategoriesToFirebase = saveCategoriesToFirebase;
-</script>
-
-<script>
 // ════════════════════════════════════════
-//  APP STATE
+//  NAVIGATION
 // ════════════════════════════════════════
-window._prods   = [];
-window._currentUser = null;
-let editImgs    = [];   // {type:'existing'|'new', url?:string, file?:File, preview:string}
-let deleteTarget = null;
-
-// ════════════════════════════════════════
-//  AUTH
-// ════════════════════════════════════════
-function loginLocal(){
-  window._currentUser = { name:'Admin (Lokal)', email:'admin@local', photo:'' };
-  onLoginSuccess();
-}
-
-function onLoginSuccess(){
-  const u = window._currentUser;
-  document.getElementById('login').style.display = 'none';
-  document.getElementById('app').style.display   = 'block';
-  document.getElementById('uName').textContent   = u.name;
-  document.getElementById('uEmail').textContent  = u.email;
-  if(u.photo) document.getElementById('uAvatar').src = u.photo;
-  const h = new Date().getHours();
-  document.getElementById('greeting').textContent = (h<12?'Selamat pagi':h<17?'Selamat siang':'Selamat malam')+', '+u.name+'!';
-  loadSettingsForm();
-  if(window._subscribeProducts) window._subscribeProducts();
-  else { window._prods=[]; renderTbl(); renderDash(); }
-  syncCategoriesOnLogin();
-}
-
-async function googleLogin(){
-  const btn = document.getElementById('googleLoginBtn');
-  if(btn){ btn.textContent = '⏳ Menghubungkan…'; btn.disabled = true; }
-  if(!window._firebaseAuthReady){
-    // Wait up to 3s for module to load
-    let waited = 0;
-    while(!window._firebaseAuthReady && waited < 30){
-      await new Promise(r => setTimeout(r, 100));
-      waited++;
-    }
-  }
-  if(!window._firebaseAuthReady){
-    toast('❌ Firebase belum siap, coba lagi');
-    if(btn){ btn.textContent = 'Masuk dengan Google'; btn.disabled = false; }
-    return;
-  }
-  try {
-    await window._signInWithPopup(window._auth, window._provider);
-    // onAuthStateChanged in module will call onLoginSuccess
-  } catch(e) {
-    console.error(e);
-    toast('❌ Login gagal: ' + (e.message||e.code||'unknown error'));
-    if(btn){ btn.textContent = 'Masuk dengan Google'; btn.disabled = false; }
-  }
-}
-
-function logout(){
-  if(window._firebaseAuthReady && window._firebaseLogout) window._firebaseLogout();
-  window._currentUser = null;
-  document.getElementById('login').style.display = 'flex';
-  document.getElementById('app').style.display   = 'none';
-}
-
-// ════════════════════════════════════════
-//  NAV
-// ════════════════════════════════════════
-function nav(name){
+window._nav = (name) => {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
   document.querySelectorAll('.sb-item').forEach(n=>n.classList.remove('on'));
   document.getElementById('page-'+name).classList.add('on');
   document.querySelector('[data-page='+name+']').classList.add('on');
   document.getElementById('sidebar').classList.remove('open');
   if(name==='categories') renderCatList();
-}
+};
 
 // ════════════════════════════════════════
 //  DASHBOARD
 // ════════════════════════════════════════
-const ICONS={Kitchen:'🍳',Clothes:'👕','Toy & Kids':'🧸',Food:'🍱',Medicine:'💊',Others:'📦'};
-const catIcon = c => ICONS[c]||'📦';
-
 function renderDash(){
-  const p=window._prods;
-  const cats=['Kitchen','Clothes','Toy & Kids','Food','Medicine','Others'];
+  const cats = loadCategoriesLocal();
   document.getElementById('statsGrid').innerHTML=[
-    {v:p.length,l:'Total Produk',i:'📦'},
-    {v:p.reduce((s,x)=>s+x.stock,0),l:'Total Stok',i:'🔢'},
-    {v:p.filter(x=>x.stock===0).length,l:'Stok Habis',i:'❌'},
-    {v:p.filter(x=>x.stock>0&&x.stock<=3).length,l:'Stok Menipis',i:'⚠️'},
-    ...cats.map(c=>({v:p.filter(x=>(x.category||'Others')===c).length,l:c,i:catIcon(c)})).filter(x=>x.v>0)
+    {v:_prods.length,         l:'Total Produk', i:'📦'},
+    {v:_prods.reduce((s,x)=>s+(x.stock||0),0), l:'Total Stok', i:'🔢'},
+    {v:_prods.filter(x=>x.stock===0).length,   l:'Stok Habis', i:'❌'},
+    {v:_prods.filter(x=>x.stock>0&&x.stock<=3).length, l:'Stok Menipis', i:'⚠️'},
+    ...cats.map(c=>({v:_prods.filter(x=>(x.category||'Others')===c.name).length,l:c.name,i:c.icon})).filter(x=>x.v>0)
   ].map(s=>`<div class="stat"><div class="stat-val">${s.i} ${s.v}</div><div class="stat-lbl">${s.l}</div></div>`).join('');
 
-  document.getElementById('dashTbl').innerHTML = p.slice(0,10).map(x=>{
-    const pill = x.stock===0?'<span class="stk-pill stk-out">Habis</span>':x.stock<=3?`<span class="stk-pill stk-low">${x.stock} tersisa</span>`:`<span class="stk-pill stk-ok">${x.stock}</span>`;
+  document.getElementById('dashTbl').innerHTML = _prods.slice(0,10).map(x=>{
+    const pill = x.stock===0?'<span class="stk-pill stk-out">Habis</span>':
+      x.stock<=3?`<span class="stk-pill stk-low">${x.stock}</span>`:
+      `<span class="stk-pill stk-ok">${x.stock}</span>`;
     return `<tr><td>${x.name}</td><td>${catIcon(x.category||'Others')} ${x.category||'Others'}</td><td>${x.currency||'£'}${x.price}</td><td>${pill}</td></tr>`;
   }).join('')||'<tr><td colspan="4" style="text-align:center;padding:32px;color:#9CA3AF">Belum ada produk</td></tr>';
 }
@@ -624,10 +658,14 @@ function renderDash(){
 // ════════════════════════════════════════
 function renderTbl(){
   const q=(document.getElementById('cmsSearch')?.value||'').toLowerCase();
-  const list=q?window._prods.filter(p=>p.name.toLowerCase().includes(q)||(p.desc||'').toLowerCase().includes(q)):window._prods;
+  const list=q?_prods.filter(p=>p.name.toLowerCase().includes(q)||(p.desc||'').toLowerCase().includes(q)):_prods;
   document.getElementById('prodTbl').innerHTML=list.map(p=>{
-    const pill=p.stock===0?'<span class="stk-pill stk-out">Habis</span>':p.stock<=3?`<span class="stk-pill stk-low">${p.stock}</span>`:`<span class="stk-pill stk-ok">${p.stock}</span>`;
-    const thumb=p.imgs&&p.imgs[0]?`<img class="td-thumb" src="${p.imgs[0]}" alt="${p.name}">`:'<div style="width:48px;height:48px;background:#F3F4F6;border-radius:10px;display:flex;align-items:center;justify-content:center">📷</div>';
+    const pill=p.stock===0?'<span class="stk-pill stk-out">Habis</span>':
+      p.stock<=3?`<span class="stk-pill stk-low">${p.stock}</span>`:
+      `<span class="stk-pill stk-ok">${p.stock}</span>`;
+    const thumb=p.imgs&&p.imgs[0]?
+      `<img class="td-thumb" src="${p.imgs[0]}" alt="${p.name}">`:
+      '<div style="width:48px;height:48px;background:#F3F4F6;border-radius:10px;display:flex;align-items:center;justify-content:center">📷</div>';
     return `<tr>
       <td>${thumb}</td>
       <td><div class="td-name">${p.name}</div><div class="td-desc">${p.desc||''}</div></td>
@@ -635,17 +673,18 @@ function renderTbl(){
       <td>${p.currency||'£'}${p.price}</td>
       <td>${pill}</td>
       <td><div class="actions">
-        <button class="btn btn-sm btn-success" onclick="openEdit('${p.id}')">✏️ Edit</button>
-        <button class="btn btn-sm btn-danger" onclick="askDelete('${p.id}','${p.name.replace(/'/g,"\\'")}')">🗑</button>
+        <button class="btn btn-sm btn-success" onclick="window._openEdit('${p.id}')">✏️ Edit</button>
+        <button class="btn btn-sm btn-danger" onclick="window._askDelete('${p.id}','${p.name.replace(/'/g,"\'")}')">🗑</button>
       </div></td>
     </tr>`;
-  }).join('')||'<tr><td colspan="6" style="text-align:center;padding:40px;color:#9CA3AF">Belum ada produk. Klik "+ Tambah Produk"</td></tr>';
+  }).join('')||'<tr><td colspan="6" style="text-align:center;padding:40px;color:#9CA3AF">Belum ada produk</td></tr>';
 }
+window._renderTbl = renderTbl;
 
 // ════════════════════════════════════════
-//  MODAL
+//  MODAL OPEN/CLOSE
 // ════════════════════════════════════════
-function openAdd(){
+window._openAdd = () => {
   editImgs=[];
   document.getElementById('eId').value='';
   document.getElementById('eName').value='';
@@ -653,14 +692,14 @@ function openAdd(){
   document.getElementById('ePrice').value='';
   document.getElementById('eStock').value='';
   document.getElementById('eCurrency').value='£';
-  document.getElementById('eCategory').value='Others';
   document.getElementById('previews').innerHTML='';
   document.getElementById('modalTitle').textContent='Tambah Produk';
+  updateCatSelect();
   document.getElementById('prodModal').classList.add('on');
-}
+};
 
-function openEdit(id){
-  const p=window._prods.find(x=>x.id===id); if(!p) return;
+window._openEdit = (id) => {
+  const p=_prods.find(x=>x.id===id); if(!p) return;
   editImgs=(p.imgs||[]).map(url=>({type:'existing',url,preview:url}));
   document.getElementById('eId').value=id;
   document.getElementById('eName').value=p.name;
@@ -668,91 +707,43 @@ function openEdit(id){
   document.getElementById('ePrice').value=p.price;
   document.getElementById('eStock').value=p.stock;
   document.getElementById('eCurrency').value=p.currency||'£';
-  document.getElementById('eCategory').value=p.category||'Others';
   document.getElementById('modalTitle').textContent='Edit Produk';
+  updateCatSelect();
+  document.getElementById('eCategory').value=p.category||'Others';
   renderPreviews();
   document.getElementById('prodModal').classList.add('on');
-}
-
-function closeModal(){ document.getElementById('prodModal').classList.remove('on'); editImgs=[]; }
-
-async function saveProduct(){
-  const name=document.getElementById('eName').value.trim();
-  if(!name){ toast('⚠️ Nama produk wajib diisi!'); return; }
-  const id=document.getElementById('eId').value||null;
-  const data={
-    name, desc:document.getElementById('eDesc').value.trim(),
-    price:parseFloat(document.getElementById('ePrice').value)||0,
-    stock:parseInt(document.getElementById('eStock').value)||0,
-    currency:document.getElementById('eCurrency').value,
-    category:document.getElementById('eCategory').value,
-    existingImgs:editImgs.filter(i=>i.type==='existing').map(i=>i.url)
-  };
-  const newFiles=editImgs.filter(i=>i.type==='new').map(i=>i.file);
-  const removedUrls=[];
-  if(id){ const orig=window._prods.find(x=>x.id===id); if(orig) (orig.imgs||[]).forEach(u=>{ if(!data.existingImgs.includes(u)) removedUrls.push(u); }); }
-
-  if(window._saveProductFirebase){
-    await window._saveProductFirebase(data, id, newFiles, removedUrls);
-  } else {
-    // Fallback: no Firebase, use localStorage
-    const prods=JSON.parse(localStorage.getItem('preloved_products_v1')||'[]');
-    const imgs=[...data.existingImgs,...editImgs.filter(i=>i.type==='new').map(i=>i.preview)];
-    const prod={...data,imgs,id:id||Date.now()};
-    delete prod.existingImgs;
-    if(id){ const idx=prods.findIndex(x=>x.id==id); if(idx>=0)prods[idx]=prod; else prods.push(prod); }
-    else prods.push(prod);
-    localStorage.setItem('preloved_products_v1',JSON.stringify(prods));
-    window._prods=prods; renderTbl(); renderDash(); closeModal(); toast('✅ Disimpan!');
-  }
-}
+};
 
 // ════════════════════════════════════════
-//  DELETE
+//  DELETE CONFIRM
 // ════════════════════════════════════════
-function askDelete(id,name){
-  deleteTarget=id;
-  document.getElementById('confirmSub').textContent=`Hapus "${name}"? Tindakan ini tidak bisa dibatalkan.`;
+window._askDelete = (id, name) => {
+  delTarget=id;
+  document.getElementById('confirmSub').textContent=`Hapus "${name}"? Tidak bisa dibatalkan.`;
   document.getElementById('confirmModal').classList.add('on');
-}
-function closeConfirm(){ document.getElementById('confirmModal').classList.remove('on'); deleteTarget=null; }
-async function doDelete(){
-  if(!deleteTarget) return;
-  const p=window._prods.find(x=>x.id===deleteTarget);
-  if(window._deleteProductFirebase){ await window._deleteProductFirebase(deleteTarget, p?.imgs||[]); }
-  else {
-    const prods=JSON.parse(localStorage.getItem('preloved_products_v1')||'[]').filter(x=>x.id!=deleteTarget);
-    localStorage.setItem('preloved_products_v1',JSON.stringify(prods));
-    window._prods=prods; renderTbl(); renderDash(); closeConfirm(); toast('🗑 Dihapus');
-  }
-}
+};
 
 // ════════════════════════════════════════
 //  IMAGE UPLOAD
 // ════════════════════════════════════════
-function handleFiles(files){
+window._handleFiles = (files) => {
   Array.from(files).forEach(file=>{
     const reader=new FileReader();
     reader.onload=e=>{ editImgs.push({type:'new',file,preview:e.target.result}); renderPreviews(); };
     reader.readAsDataURL(file);
   });
-}
-function removeImg(idx){ editImgs.splice(idx,1); renderPreviews(); }
+};
+window._removeImg = (idx) => { editImgs.splice(idx,1); renderPreviews(); };
+
 function renderPreviews(){
   document.getElementById('previews').innerHTML=editImgs.map((img,i)=>
-    `<div class="prev-item"><img src="${img.preview}" alt="preview"><button class="prev-del" onclick="removeImg(${i})">✕</button></div>`
+    `<div class="prev-item"><img src="${img.preview}" alt="preview"><button class="prev-del" onclick="window._removeImg(${i})">✕</button></div>`
   ).join('');
 }
-function onDragOver(e){ e.preventDefault(); document.getElementById('uploadZone').classList.add('drag'); }
-function onDragLeave(){ document.getElementById('uploadZone').classList.remove('drag'); }
-function onDrop(e){ e.preventDefault(); onDragLeave(); handleFiles(e.dataTransfer.files); }
 
 // ════════════════════════════════════════
 //  SETTINGS
 // ════════════════════════════════════════
-function loadSettings(){ try{ return JSON.parse(localStorage.getItem('preloved_settings_v1')||'{}'); }catch(_){return{};} }
-window.loadSettings = loadSettings;
-window.onLoginSuccess = function(user){ window._currentUser = { name:user.displayName||user.email, email:user.email, photo:user.photoURL||'' }; onLoginSuccess(); };
 function loadSettingsForm(){
   const s=loadSettings();
   document.getElementById('sWA').value=s.wa||'628114140218';
@@ -760,171 +751,64 @@ function loadSettingsForm(){
   document.getElementById('sCurrency').value=s.currency||'£';
   document.getElementById('sEmails').value=(s.allowedEmails||[]).join('\n');
 }
-function saveSettings(){
+window._saveSettings = () => {
   const emails=document.getElementById('sEmails').value.split('\n').map(e=>e.trim()).filter(Boolean);
-  localStorage.setItem('preloved_settings_v1',JSON.stringify({
-    wa:document.getElementById('sWA').value.trim(),
-    storeName:document.getElementById('sName').value.trim(),
-    currency:document.getElementById('sCurrency').value,
-    allowedEmails:emails
-  }));
+  saveSettingsData({
+    wa: document.getElementById('sWA').value.trim(),
+    storeName: document.getElementById('sName').value.trim(),
+    currency: document.getElementById('sCurrency').value,
+    allowedEmails: emails
+  });
   toast('✅ Pengaturan disimpan!');
-}
+};
+
+// ════════════════════════════════════════
+//  EMOJI PICKER
+// ════════════════════════════════════════
+let _emojiTargetRow = null;
+window._toggleEmojiPicker = () => {
+  _emojiTargetRow = null;
+  document.getElementById('emojiPicker').classList.toggle('on');
+};
+window._pickEmoji = (e) => {
+  if(_emojiTargetRow !== null){
+    const cats=loadCategoriesLocal(); cats[_emojiTargetRow].icon=e;
+    saveCats(cats).then(()=>renderCatList());
+    _emojiTargetRow=null;
+  } else {
+    document.getElementById('newCatEmoji').textContent=e;
+  }
+  document.getElementById('emojiPicker').classList.remove('on');
+};
+window._openEmojiRow = (idx) => {
+  _emojiTargetRow=idx;
+  document.getElementById('emojiPicker').classList.add('on');
+};
+
+// Close emoji on outside click
+document.addEventListener('click', e => {
+  const picker=document.getElementById('emojiPicker');
+  if(picker&&!picker.contains(e.target)&&
+     e.target.id!=='newCatEmoji'&&
+     !e.target.classList.contains('cat-icon-pick')){
+    picker.classList.remove('on'); _emojiTargetRow=null;
+  }
+});
 
 // ════════════════════════════════════════
 //  UTILS
 // ════════════════════════════════════════
-function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('on'); setTimeout(()=>t.classList.remove('on'),2800); }
+function toast(msg){
+  const t=document.getElementById('toast'); t.textContent=msg;
+  t.classList.add('on'); setTimeout(()=>t.classList.remove('on'),2800);
+}
 function showLoading(v){ document.getElementById('loadingOverlay').classList.toggle('on',v); }
 
-// ════════════════════════════════════════
-//  CATEGORIES
-// ════════════════════════════════════════
-const DEFAULT_CATS = [
-  {icon:'🍳',name:'Kitchen'},
-  {icon:'👕',name:'Clothes'},
-  {icon:'🧸',name:'Toy & Kids'},
-  {icon:'🍱',name:'Food'},
-  {icon:'💊',name:'Medicine'},
-  {icon:'📦',name:'Others'}
-];
+function closeModal(){ document.getElementById('prodModal').classList.remove('on'); editImgs=[]; }
+function closeConfirm(){ document.getElementById('confirmModal').classList.remove('on'); delTarget=null; }
+window._closeModal   = closeModal;
+window._closeConfirm = closeConfirm;
 
-function loadCategories(){
-  try{ return JSON.parse(localStorage.getItem('preloved_categories_v1')||'null') || DEFAULT_CATS; }catch(_){ return DEFAULT_CATS; }
-}
-async function saveCategoriesToStorage(cats){
-  localStorage.setItem('preloved_categories_v1', JSON.stringify(cats));
-  if (window._saveCategoriesToFirebase) {
-    const ok = await window._saveCategoriesToFirebase(cats);
-    if (!ok) console.warn("Firebase save failed, using localStorage only");
-  }
-}
-
-function renderCatList(){
-  const cats = loadCategories();
-  document.getElementById('catList').innerHTML = cats.map((c,i) => `
-    <div class="cat-row" id="catrow-${i}">
-      <span class="cat-icon-pick" onclick="openEmojiForRow(${i})" title="Klik untuk ganti ikon">${c.icon}</span>
-      <input class="cat-name-input" value="${c.name}" onchange="updateCatName(${i},this.value)" placeholder="Nama kategori">
-      <button class="cat-del-btn" onclick="deleteCat(${i})" title="Hapus">🗑</button>
-    </div>
-  `).join('');
-  // Update category select in modal
-  updateCatSelect();
-}
-
-function updateCatSelect(){
-  const cats = loadCategories();
-  const sel = document.getElementById('eCategory');
-  if(!sel) return;
-  const cur = sel.value;
-  sel.innerHTML = cats.map(c => `<option value="${c.name}">${c.icon} ${c.name}</option>`).join('');
-  if(cur) sel.value = cur;
-}
-
-async function updateCatName(idx, val){
-  const cats = loadCategories();
-  cats[idx].name = val;
-  await saveCategoriesToStorage(cats);
-  updateCatSelect();
-}
-
-async function deleteCat(idx){
-  const cats = loadCategories();
-  if(cats.length <= 1){ toast('⚠️ Minimal harus ada 1 kategori'); return; }
-  cats.splice(idx,1);
-  await saveCategoriesToStorage(cats);
-  renderCatList();
-  toast('🗑 Kategori dihapus');
-}
-
-async function addCategory(){
-  const name = document.getElementById('newCatName').value.trim();
-  const icon = document.getElementById('newCatEmoji').textContent.trim();
-  if(!name){ toast('⚠️ Isi nama kategori dulu'); return; }
-  const cats = loadCategories();
-  if(cats.find(c=>c.name.toLowerCase()===name.toLowerCase())){ toast('⚠️ Kategori sudah ada'); return; }
-  cats.push({icon, name});
-  await saveCategoriesToStorage(cats);
-  document.getElementById('newCatName').value='';
-  document.getElementById('newCatEmoji').textContent='📦';
-  renderCatList();
-  toast('✅ Kategori ditambahkan & disimpan!');
-}
-
-async function saveCategories(){
-  const cats = loadCategories();
-  await saveCategoriesToStorage(cats);
-  renderCatList();
-  toast('✅ Kategori disimpan ke Firebase!');
-}
-
-// Emoji picker for new cat
-function toggleEmojiPicker(){
-  document.getElementById('emojiPicker').classList.toggle('on');
-}
-function pickEmoji(e){
-  document.getElementById('newCatEmoji').textContent=e;
-  document.getElementById('emojiPicker').classList.remove('on');
-}
-// Emoji picker for existing cat row
-let _emojiTargetRow = null;
-function openEmojiForRow(idx){
-  _emojiTargetRow = idx;
-  // Reuse picker by positioning near row
-  const picker = document.getElementById('emojiPicker');
-  const row = document.getElementById('catrow-'+idx);
-  if(!row) return;
-  row.appendChild(picker);
-  picker.style.top = '40px';
-  picker.style.left = '0';
-  picker.classList.add('on');
-  // Override pickEmoji temporarily
-  window._pickEmojiForRow = (e) => {
-    const cats = loadCategories();
-    cats[idx].icon = e;
-    saveCategoriesToStorage(cats);
-    picker.classList.remove('on');
-    renderCatList();
-  };
-}
-// Override epick onclick when editing row
-document.addEventListener('click', e => {
-  if(e.target.classList.contains('epick') && _emojiTargetRow !== null){
-    e.stopPropagation();
-    if(window._pickEmojiForRow) window._pickEmojiForRow(e.target.textContent);
-    _emojiTargetRow = null;
-  }
-});
-// Close emoji picker on outside click
-document.addEventListener('click', e => {
-  const picker = document.getElementById('emojiPicker');
-  if(picker && !picker.contains(e.target) && e.target.id !== 'newCatEmoji' && !e.target.classList.contains('cat-icon-pick')){
-    picker.classList.remove('on');
-    _emojiTargetRow = null;
-  }
-});
-
-// ════════════════════════════════════════
-//  INIT CATEGORIES ON LOAD
-// ════════════════════════════════════════
-document.addEventListener('DOMContentLoaded', ()=>{
-  renderCatList();
-  updateCatSelect();
-});
-
-// Called after login to sync categories from Firebase
-async function syncCategoriesOnLogin(){
-  if (window._loadCategoriesFromFirebase) {
-    await window._loadCategoriesFromFirebase();
-  }
-  renderCatList();
-  updateCatSelect();
-}
-
-// Expose for nav
-window.renderCatList = renderCatList;
-window.updateCatSelect = updateCatSelect;
 </script>
 </body>
 </html>
