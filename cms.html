@@ -507,13 +507,17 @@ window._saveCategories = async () => {
 // ════════════════════════════════════════
 window._googleLogin = async () => {
   const btn = document.getElementById('googleLoginBtn');
-  if(btn){ btn.disabled=true; btn.textContent='⏳ Menghubungkan…'; }
+  const originalHTML = btn ? btn.innerHTML : '';
+  if(btn){ btn.disabled=true; btn.innerHTML='⏳ Menghubungkan…'; }
   try {
     await signInWithPopup(auth, provider);
+    // onAuthStateChanged handles success — no need to reset btn
   } catch(e){
     console.error(e);
-    toast('❌ Login gagal: '+(e.message||e.code));
-    if(btn){ btn.disabled=false; btn.textContent='Masuk dengan Google'; }
+    if(e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request'){
+      toast('❌ Login gagal: '+(e.message||e.code));
+    }
+    if(btn){ btn.disabled=false; btn.innerHTML=originalHTML; }
   }
 };
 
