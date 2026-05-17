@@ -127,6 +127,11 @@ textarea{resize:vertical;min-height:80px;line-height:1.5}
 .prev-del{position:absolute;top:-5px;right:-5px;background:var(--red);color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700}
 
 
+/* MULTI CATEGORY SELECT */
+.cat-check-item{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:100px;border:1.5px solid var(--gray-200);background:var(--white);font-size:12px;font-weight:600;color:var(--gray-500);cursor:pointer;transition:all .15s;user-select:none;}
+.cat-check-item:hover{border-color:var(--gray-400);color:var(--gray-900);}
+.cat-check-item.checked{background:var(--gray-900);border-color:var(--gray-900);color:#fff;}
+
 /* CATEGORY MANAGER */
 .cat-list { display:flex; flex-direction:column; gap:8px; margin-bottom:16px; }
 .cat-row { display:flex; align-items:center; gap:10px; background:var(--white); border:1.5px solid var(--gray-200); border-radius:12px; padding:10px 14px; transition:border-color .15s; }
@@ -337,8 +342,10 @@ textarea{resize:vertical;min-height:80px;line-height:1.5}
         <div class="fg"><label>Mata Uang</label>
           <select id="eCurrency"><option value="£">£ Pound</option><option value="Rp">Rp Rupiah</option><option value="$">$ Dollar</option><option value="€">€ Euro</option></select>
         </div>
-        <div class="fg"><label>Kategori</label>
-          <select id="eCategory"></select>
+        <div class="fg">
+          <label>Kategori <span style="font-weight:400;text-transform:none;font-size:11px;color:#9CA3AF">(bisa pilih lebih dari 1)</span></label>
+          <div id="eCategoryWrap" style="display:flex;flex-wrap:wrap;gap:8px;padding:10px 12px;border:1.5px solid var(--gray-200);border-radius:12px;background:var(--white);min-height:44px;cursor:pointer" onclick="document.getElementById('eCategoryWrap').focus()"></div>
+          <input type="hidden" id="eCategory">
         </div>
       </div>
       <div class="fg">
@@ -418,6 +425,18 @@ const DEFAULT_CATS = [
 const ICONS = {Kitchen:'🍳',Clothes:'👕','Toy & Kids':'🧸',Food:'🍱',Medicine:'💊',Others:'📦'};
 const catIcon = c => ICONS[c]||'📦';
 
+// Get categories as array (supports old string + new array format)
+function getProdCats(p){
+  if(Array.isArray(p.categories) && p.categories.length) return p.categories;
+  if(p.category) return p.category.split(',').map(s=>s.trim()).filter(Boolean);
+  return ['Others'];
+}
+
+// Render small cat pills for table
+function getCatsDisplay(p){
+  return getProdCats(p).map(c=>`<span style="display:inline-flex;align-items:center;gap:3px;background:#F3F4F6;border-radius:100px;padding:2px 8px;font-size:11px;font-weight:600;margin:1px">${catIcon(c)} ${c}</span>`).join('');
+}
+
 // ════════════════════════════════════════
 //  SETTINGS (localStorage)
 // ════════════════════════════════════════
@@ -462,16 +481,44 @@ function renderCatList(){
       <button class="cat-del-btn" onclick="window._deleteCat(${i})">🗑</button>
     </div>
   `).join('');
+  // preserve current selection
   updateCatSelect();
 }
 
-function updateCatSelect(){
+function updateCatSelect(selectedCats){
   const cats = loadCategoriesLocal();
-  const sel = document.getElementById('eCategory');
-  if(!sel) return;
-  const cur = sel.value;
-  sel.innerHTML = cats.map(c=>`<option value="${c.name}">${c.icon} ${c.name}</option>`).join('');
-  if(cur) sel.value = cur;
+  const wrap = document.getElementById('eCategoryWrap');
+  if(!wrap) return;
+  // selectedCats can be array or comma string
+  let sel = selectedCats;
+  if(!sel){
+    // Try to read from hidden input
+    const hidden = document.getElementById('eCategory');
+    sel = hidden ? (hidden.value||'').split(',').filter(Boolean) : [];
+  }
+  if(typeof sel === 'string') sel = sel.split(',').filter(Boolean);
+  if(!sel.length) sel = [cats[0]?.name||'Others'];
+
+  wrap.innerHTML = cats.map(c => {
+    const isChecked = sel.includes(c.name);
+    return `<span class="cat-check-item ${isChecked?'checked':''}" onclick="toggleCatCheck('${c.name}')">${c.icon} ${c.name}</span>`;
+  }).join('');
+  // Update hidden input
+  const hidden = document.getElementById('eCategory');
+  if(hidden) hidden.value = sel.join(',');
+}
+
+function toggleCatCheck(name){
+  const hidden = document.getElementById('eCategory');
+  let sel = (hidden.value||'').split(',').filter(Boolean);
+  if(sel.includes(name)){
+    if(sel.length<=1){ return; } // must have at least 1
+    sel = sel.filter(s=>s!==name);
+  } else {
+    sel.push(name);
+  }
+  hidden.value = sel.join(',');
+  updateCatSelect(sel);
 }
 
 window._updateCatName = async (idx, val) => {
@@ -594,7 +641,8 @@ window._saveProduct = async () => {
     price: parseFloat(document.getElementById('ePrice').value)||0,
     stock: parseInt(document.getElementById('eStock').value)||0,
     currency: document.getElementById('eCurrency').value,
-    category: document.getElementById('eCategory').value,
+    categories: (document.getElementById('eCategory').value||'Others').split(',').filter(Boolean),
+    category: (document.getElementById('eCategory').value||'Others').split(',')[0], // backward compat
     imgs: finalImgs
   };
 
@@ -646,7 +694,7 @@ function renderDash(){
     {v:_prods.reduce((s,x)=>s+(x.stock||0),0), l:'Total Stok', i:'🔢'},
     {v:_prods.filter(x=>x.stock===0).length,   l:'Stok Habis', i:'❌'},
     {v:_prods.filter(x=>x.stock>0&&x.stock<=3).length, l:'Stok Menipis', i:'⚠️'},
-    ...cats.map(c=>({v:_prods.filter(x=>(x.category||'Others')===c.name).length,l:c.name,i:c.icon})).filter(x=>x.v>0)
+    ...cats.map(c=>({v:_prods.filter(x=>getProdCats(x).includes(c.name)).length,l:c.name,i:c.icon})).filter(x=>x.v>0)
   ].map(s=>`<div class="stat"><div class="stat-val">${s.i} ${s.v}</div><div class="stat-lbl">${s.l}</div></div>`).join('');
 
   document.getElementById('dashTbl').innerHTML = _prods.slice(0,10).map(x=>{
@@ -673,7 +721,7 @@ function renderTbl(){
     return `<tr>
       <td>${thumb}</td>
       <td><div class="td-name">${p.name}</div><div class="td-desc">${p.desc||''}</div></td>
-      <td>${catIcon(p.category||'Others')} ${p.category||'Others'}</td>
+      <td>${getCatsDisplay(p)}</td>
       <td>${p.currency||'£'}${p.price}</td>
       <td>${pill}</td>
       <td><div class="actions">
@@ -696,9 +744,10 @@ window._openAdd = () => {
   document.getElementById('ePrice').value='';
   document.getElementById('eStock').value='';
   document.getElementById('eCurrency').value='£';
+  document.getElementById('eCategory').value='';
   document.getElementById('previews').innerHTML='';
   document.getElementById('modalTitle').textContent='Tambah Produk';
-  updateCatSelect();
+  updateCatSelect([]);
   document.getElementById('prodModal').classList.add('on');
 };
 
@@ -713,7 +762,11 @@ window._openEdit = (id) => {
   document.getElementById('eCurrency').value=p.currency||'£';
   document.getElementById('modalTitle').textContent='Edit Produk';
   updateCatSelect();
-  document.getElementById('eCategory').value=p.category||'Others';
+  // Support both old string and new array format
+  const pCats = Array.isArray(p.categories) ? p.categories :
+    (p.category ? p.category.split(',').map(s=>s.trim()).filter(Boolean) : ['Others']);
+  document.getElementById('eCategory').value = pCats.join(',');
+  updateCatSelect(pCats);
   renderPreviews();
   document.getElementById('prodModal').classList.add('on');
 };

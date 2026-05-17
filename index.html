@@ -238,6 +238,11 @@ const sIdx={}, qMap={}, ICONS={Kitchen:'🍳',Clothes:'👕','Toy & Kids':'🧸'
 let cart=[];
 const ci=id=>cart.find(c=>c.id===id);
 const icon=c=>ICONS[c]||'📦';
+function getProdCatsIdx(p){
+  if(Array.isArray(p.categories)&&p.categories.length) return p.categories;
+  if(p.category) return p.category.split(',').map(s=>s.trim()).filter(Boolean);
+  return ['Others'];
+}
 
 // badge
 function upBadge(){const n=cart.reduce((s,c)=>s+c.qty,0);const el=document.getElementById('badge');el.textContent=n;el.classList.toggle('on',n>0);}
@@ -316,7 +321,11 @@ function go(){
   const q=(document.getElementById('searchInput').value||'').trim().toLowerCase();
   let list=q?window._prods.filter(p=>p.name.toLowerCase().includes(q)||(p.desc||'').toLowerCase().includes(q)||String(p.price).includes(q)):[...window._prods];
   const cat=document.querySelector('[data-cat].on')?.dataset.cat||'all';
-  if(cat!=='all')list=list.filter(p=>(p.category||'Others')===cat);
+  if(cat!=='all') list=list.filter(p=>{
+    const cats=Array.isArray(p.categories)&&p.categories.length ? p.categories :
+      (p.category||'Others').split(',').map(s=>s.trim()).filter(Boolean);
+    return cats.includes(cat);
+  });
   const f=document.querySelector('[data-f].on')?.dataset.f||'all';
   if(f==='available')list=list.filter(p=>p.stock>3);
   else if(f==='low')list=list.filter(p=>p.stock>0&&p.stock<=3);
@@ -335,7 +344,7 @@ function go(){
     return `<div class="card" style="animation-delay:${i*.05}s">
       <div class="gallery">
         <div class="slides" id="sl-${p.id}">${imgs.map(s=>`<img src="${s}" alt="${p.name}" loading="lazy">`).join('')||'<div style="height:100%;display:flex;align-items:center;justify-content:center;font-size:2rem">📷</div>'}</div>
-        <div class="img-tags"><span class="cat-tag">${icon(p.category||'Others')} ${p.category||'Others'}</span>${stkTag(p.stock)}</div>
+        <div class="img-tags"><span class="cat-tag">${getProdCatsIdx(p).slice(0,2).map(c=>icon(c)+' '+c).join(' · ')}</span>${stkTag(p.stock)}</div>
         ${multi?`<button class="gal-arrow L" onclick="gSlide('${p.id}',-1)">‹</button><button class="gal-arrow R" onclick="gSlide('${p.id}',1)">›</button><div class="gal-dots" id="dots-${p.id}">${imgs.map((_,j)=>`<div class="gdot${j===0?' on':''}"></div>`).join('')}</div>`:''}
       </div>
       <div class="card-body">
