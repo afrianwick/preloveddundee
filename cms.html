@@ -313,9 +313,7 @@ textarea{resize:vertical;min-height:80px;line-height:1.5}
           <div class="fg"><label>Mata Uang</label>
             <select id="sCurrency"><option value="£">£ Pound Sterling</option><option value="Rp">Rp Rupiah</option><option value="$">$ Dollar</option><option value="€">€ Euro</option></select>
           </div>
-          <div class="fg"><label>Email Admin (satu per baris, kosong = semua bisa masuk)</label>
-            <textarea id="sEmails" placeholder="email@gmail.com&#10;email2@gmail.com"></textarea>
-          </div>
+<!-- Email whitelist now hardcoded in code for security -->
           <button class="btn btn-primary" onclick="window._saveSettings()">💾 Simpan</button>
         </div>
       </div>
@@ -584,10 +582,9 @@ window._logout = async () => {
 
 onAuthStateChanged(auth, async user => {
   if(user){
-    const settings = loadSettings();
-    const allowed = (settings.allowedEmails||[]).filter(e=>e.trim());
-    if(allowed.length && !allowed.includes(user.email)){
-      toast('❌ Email tidak diizinkan: '+user.email);
+    const ADMIN_EMAILS = ['afrian.003@gmail.com'];
+    if(!ADMIN_EMAILS.includes(user.email)){
+      toast('❌ Akses ditolak: '+user.email);
       await signOut(auth); return;
     }
     _user = { name:user.displayName||user.email, email:user.email, photo:user.photoURL||'' };
@@ -807,15 +804,12 @@ function loadSettingsForm(){
   document.getElementById('sWA').value=s.wa||'628114140218';
   document.getElementById('sName').value=s.storeName||'Preloved Items';
   document.getElementById('sCurrency').value=s.currency||'£';
-  document.getElementById('sEmails').value=(s.allowedEmails||[]).join('\n');
 }
 window._saveSettings = () => {
-  const emails=document.getElementById('sEmails').value.split('\n').map(e=>e.trim()).filter(Boolean);
   saveSettingsData({
     wa: document.getElementById('sWA').value.trim(),
     storeName: document.getElementById('sName').value.trim(),
     currency: document.getElementById('sCurrency').value,
-    allowedEmails: emails
   });
   toast('✅ Pengaturan disimpan!');
 };
