@@ -520,6 +520,7 @@ function toggleCatCheck(name){
   hidden.value = sel.join(',');
   updateCatSelect(sel);
 }
+window.toggleCatCheck = toggleCatCheck;
 
 window._updateCatName = async (idx, val) => {
   const cats = loadCategoriesLocal(); cats[idx].name = val;
