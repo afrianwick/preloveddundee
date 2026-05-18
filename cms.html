@@ -127,6 +127,15 @@ textarea{resize:vertical;min-height:80px;line-height:1.5}
 .prev-del{position:absolute;top:-5px;right:-5px;background:var(--red);color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700}
 
 
+
+/* INTERNAL NOTES */
+.notes-field textarea{background:#FFFBEB;border-color:#FDE68A;font-size:13px;}
+.notes-field textarea:focus{border-color:#F59E0B;box-shadow:0 0 0 3px rgba(245,158,11,.1);}
+.notes-label{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#92400E;margin-bottom:6px;}
+.notes-badge{background:#FEF3C7;color:#92400E;font-size:10px;padding:2px 7px;border-radius:100px;font-weight:700;letter-spacing:.02em;}
+.td-notes{font-size:11px;color:#92400E;background:#FFFBEB;border-radius:6px;padding:4px 8px;max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border:1px solid #FDE68A;display:inline-block;}
+.td-notes-empty{font-size:11px;color:var(--gray-300);font-style:italic;}
+
 /* MULTI CATEGORY SELECT */
 .cat-check-item{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:100px;border:1.5px solid var(--gray-200);background:var(--white);font-size:12px;font-weight:600;color:var(--gray-500);cursor:pointer;transition:all .15s;user-select:none;}
 .cat-check-item:hover{border-color:var(--gray-400);color:var(--gray-900);}
@@ -262,7 +271,7 @@ textarea{resize:vertical;min-height:80px;line-height:1.5}
           <button class="btn btn-primary" onclick="window._openAdd()">＋ Tambah Produk</button>
         </div>
         <div class="tbl-wrap">
-          <table><thead><tr><th>Foto</th><th>Nama & Deskripsi</th><th>Kategori</th><th>Harga</th><th>Stok</th><th>Aksi</th></tr></thead>
+          <table><thead><tr><th>Foto</th><th>Nama & Deskripsi</th><th>Kategori</th><th>Harga</th><th>Stok</th><th>📝 Notes</th><th>Aksi</th></tr></thead>
           <tbody id="prodTbl"></tbody></table>
         </div>
       </div>
@@ -345,6 +354,10 @@ textarea{resize:vertical;min-height:80px;line-height:1.5}
           <div id="eCategoryWrap" style="display:flex;flex-wrap:wrap;gap:8px;padding:10px 12px;border:1.5px solid var(--gray-200);border-radius:12px;background:var(--white);min-height:44px;cursor:pointer" onclick="document.getElementById('eCategoryWrap').focus()"></div>
           <input type="hidden" id="eCategory">
         </div>
+      </div>
+      <div class="fg notes-field">
+        <div class="notes-label">📝 Catatan Internal <span class="notes-badge">🔒 Tidak ditampilkan ke buyer</span></div>
+        <textarea id="eNotes" placeholder="Contoh: Terjual ke Budi 12 Jan, COD Dundee City Centre…" rows="2" style="background:#FFFBEB;border-color:#FDE68A;resize:vertical;"></textarea>
       </div>
       <div class="fg">
         <label>Foto Produk</label>
@@ -636,6 +649,7 @@ window._saveProduct = async () => {
 
   const payload = {
     name, desc: document.getElementById('eDesc').value.trim(),
+    notes: document.getElementById('eNotes').value.trim(),
     price: parseFloat(document.getElementById('ePrice').value)||0,
     stock: parseInt(document.getElementById('eStock').value)||0,
     currency: document.getElementById('eCurrency').value,
@@ -699,7 +713,8 @@ function renderDash(){
     const pill = x.stock===0?'<span class="stk-pill stk-out">Habis</span>':
       x.stock<=3?`<span class="stk-pill stk-low">${x.stock}</span>`:
       `<span class="stk-pill stk-ok">${x.stock}</span>`;
-    return `<tr><td>${x.name}</td><td>${catIcon(x.category||'Others')} ${x.category||'Others'}</td><td>${x.currency||'£'}${x.price}</td><td>${pill}</td></tr>`;
+    const dashNotes = x.notes ? `<span style="font-size:11px;color:#92400E;background:#FFFBEB;padding:2px 7px;border-radius:6px;border:1px solid #FDE68A">${x.notes.substring(0,30)}${x.notes.length>30?'…':''}</span>` : '';
+    return `<tr><td>${x.name} ${dashNotes}</td><td>${catIcon(x.category||'Others')} ${x.category||'Others'}</td><td>${x.currency||'£'}${x.price}</td><td>${pill}</td></tr>`;
   }).join('')||'<tr><td colspan="4" style="text-align:center;padding:32px;color:#9CA3AF">Belum ada produk</td></tr>';
 }
 
@@ -716,12 +731,16 @@ function renderTbl(){
     const thumb=p.imgs&&p.imgs[0]?
       `<img class="td-thumb" src="${p.imgs[0]}" alt="${p.name}">`:
       '<div style="width:48px;height:48px;background:#F3F4F6;border-radius:10px;display:flex;align-items:center;justify-content:center">📷</div>';
+    const notesHtml = p.notes
+      ? `<span class="td-notes" title="${p.notes}">${p.notes.substring(0,25)}${p.notes.length>25?'…':''}</span>`
+      : `<span class="td-notes-empty">—</span>`;
     return `<tr>
       <td>${thumb}</td>
       <td><div class="td-name">${p.name}</div><div class="td-desc">${p.desc||''}</div></td>
       <td>${getCatsDisplay(p)}</td>
       <td>${p.currency||'£'}${p.price}</td>
       <td>${pill}</td>
+      <td>${notesHtml}</td>
       <td><div class="actions">
         <button class="btn btn-sm btn-success" onclick="window._openEdit('${p.id}')">✏️ Edit</button>
         <button class="btn btn-sm btn-danger" onclick="window._askDelete('${p.id}','${p.name.replace(/'/g,"\'")}')">🗑</button>
@@ -738,6 +757,7 @@ window._openAdd = () => {
   editImgs=[];
   document.getElementById('eId').value='';
   document.getElementById('eName').value='';
+  document.getElementById('eNotes').value='';
   document.getElementById('eDesc').value='';
   document.getElementById('ePrice').value='';
   document.getElementById('eStock').value='';
@@ -755,6 +775,7 @@ window._openEdit = (id) => {
   document.getElementById('eId').value=id;
   document.getElementById('eName').value=p.name;
   document.getElementById('eDesc').value=p.desc||'';
+  document.getElementById('eNotes').value=p.notes||'';
   document.getElementById('ePrice').value=p.price;
   document.getElementById('eStock').value=p.stock;
   document.getElementById('eCurrency').value=p.currency||'£';
