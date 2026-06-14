@@ -197,6 +197,19 @@ body{font-family:var(--font);background:var(--gray-50);color:var(--gray-900);min
 .detail-stk{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:5px 12px;border-radius:100px;margin-bottom:14px}
 .detail-desc{font-size:14px;color:var(--gray-500);line-height:1.75;margin-bottom:20px;white-space:pre-wrap}
 
+
+/* ══ PAGINATION ══ */
+.pagination{display:flex;align-items:center;justify-content:center;gap:6px;padding:16px 16px 8px;max-width:640px;margin:0 auto;flex-wrap:wrap;}
+.pg-btn{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--gray-200);background:var(--white);font-family:var(--font);font-size:13px;font-weight:700;color:var(--gray-500);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s var(--ease);-webkit-tap-highlight-color:transparent;}
+.pg-btn:hover:not(:disabled){border-color:var(--gray-900);color:var(--gray-900);}
+.pg-btn.on{background:var(--gray-900);border-color:var(--gray-900);color:#fff;}
+.pg-btn:disabled{opacity:.3;cursor:not-allowed;}
+.pg-arrow{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--gray-200);background:var(--white);font-size:16px;font-weight:700;color:var(--gray-500);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;-webkit-tap-highlight-color:transparent;}
+.pg-arrow:hover:not(:disabled){border-color:var(--gray-900);color:var(--gray-900);background:var(--gray-100);}
+.pg-arrow:disabled{opacity:.3;cursor:not-allowed;}
+.pg-dots{font-size:13px;color:var(--gray-300);font-weight:700;padding:0 2px;align-self:center;}
+.pg-info{font-size:11px;color:var(--gray-400);font-weight:600;text-align:center;padding:0 0 16px;letter-spacing:.02em;}
+
 .detail-topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 20px 12px;flex-shrink:0;border-bottom:1px solid var(--gray-200);}
 .detail-topbar-title{font-size:14px;font-weight:700;color:var(--gray-500);letter-spacing:.01em;}
 .detail-close-btn{width:32px;height:32px;border-radius:50%;background:var(--gray-100);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--gray-500);transition:background .15s,color .15s;-webkit-tap-highlight-color:transparent;}
@@ -227,10 +240,17 @@ footer{text-align:center;padding:20px 20px 28px;font-size:11px;color:var(--gray-
 <body>
 
 <header class="header">
+  <svg class="flag-svg" viewBox="0 0 600 44" xmlns="http://www.w3.org/2000/svg">
+    <rect width="600" height="44" fill="#003F8A"/>
+    <line x1="0" y1="0" x2="600" y2="44" stroke="white" stroke-width="18"/>
+    <line x1="600" y1="0" x2="0" y2="44" stroke="white" stroke-width="18"/>
+    <line x1="0" y1="0" x2="600" y2="44" stroke="#003F8A" stroke-width="6"/>
+    <line x1="600" y1="0" x2="0" y2="44" stroke="#003F8A" stroke-width="6"/>
+  </svg>
   <div class="header-body">
     <div class="store-tag">🏴󠁧󠁢󠁳󠁣󠁴󠁿 Scotland · Preloved Market</div>
     <div class="header-title"><strong>Second</strong><br><em>Items</em></div>
-    <div class="header-sub">Barang Bekas Dundee · Tambah ke Keranjang dan Pesan via WhatsApp</div>
+    <div class="header-sub">Barang bekas berkualitas · Pesan via WhatsApp</div>
     <div class="header-line"></div>
   </div>
 </header>
@@ -270,6 +290,8 @@ footer{text-align:center;padding:20px 20px 28px;font-size:11px;color:var(--gray-
 <div class="grid" id="grid">
   <div class="state-box"><div class="spinner"></div><div class="state-title">Memuat produk…</div></div>
 </div>
+<div id="paginationWrap"></div>
+<div class="pg-info" id="pgInfo"></div>
 <footer>Semua barang second · Kondisi sesuai foto · Tap 🛍 untuk order via WA</footer>
 
 <!-- DETAIL MODAL -->
@@ -307,9 +329,10 @@ footer{text-align:center;padding:20px 20px 28px;font-size:11px;color:var(--gray-
 
 <!-- Firebase SDK -->
 <script type="module">
-import { initializeApp }       from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, onSnapshot, query, orderBy }
-                               from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { initializeApp }  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, collection, getDocs, query, orderBy }
+                          from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
 const firebaseConfig = {
   apiKey:"AIzaSyAz5aKKh44Fb7ai8hnpbEjqEDNmyJfNCxY",
   authDomain:"preloveddundee.firebaseapp.com",
@@ -318,17 +341,50 @@ const firebaseConfig = {
   messagingSenderId:"299815207173",
   appId:"1:299815207173:web:96afb74033fafc9154b76c"
 };
+
 const app = initializeApp(firebaseConfig);
 const db  = getFirestore(app);
-onSnapshot(
-  query(collection(db,"products"), orderBy("createdAt","desc")),
-  snap => { window._prods = snap.docs.map(d=>({id:d.id,...d.data()})); go(); },
-  err  => {
+
+// One-time fetch (lebih efisien dari onSnapshot untuk toko)
+// Cache di sessionStorage agar tidak refetch setiap navigasi
+const CACHE_KEY = 'preloved_cache';
+const CACHE_TTL = 5 * 60 * 1000; // 5 menit
+
+async function loadProducts(){
+  // Check cache dulu
+  try {
+    const raw = sessionStorage.getItem(CACHE_KEY);
+    if(raw){
+      const {data, ts} = JSON.parse(raw);
+      if(Date.now() - ts < CACHE_TTL){
+        window._prods = data; go(); return;
+      }
+    }
+  } catch(_){}
+
+  // Fetch dari Firestore
+  try {
+    const snap = await getDocs(query(collection(db,'products'), orderBy('createdAt','desc')));
+    window._prods = snap.docs.map(d=>({id:d.id,...d.data()}));
+    // Save to cache (strip base64 images to save space if needed)
+    try {
+      sessionStorage.setItem(CACHE_KEY, JSON.stringify({data:window._prods, ts:Date.now()}));
+    } catch(_){} // ignore if storage full
+    go();
+  } catch(err){
     console.error(err);
     document.getElementById('grid').innerHTML =
-      '<div class="state-box"><div class="state-icon">⚠️</div><div class="state-title">Gagal memuat</div><div class="state-sub">Cek koneksi internet</div></div>';
+      '<div class="state-box"><div class="state-icon">⚠️</div><div class="state-title">Gagal memuat</div><div class="state-sub">Cek koneksi internet · <button onclick="location.reload()" style="background:none;border:none;color:#0066CC;cursor:pointer;font-family:inherit;font-weight:700">Coba lagi</button></div></div>';
   }
-);
+}
+
+// Refresh button - force refetch
+window._refreshProducts = function(){
+  sessionStorage.removeItem(CACHE_KEY);
+  loadProducts();
+};
+
+loadProducts();
 </script>
 
 <script>
@@ -444,7 +500,13 @@ function stkTag(s){
 }
 
 // ── RENDER ──
-function go(){
+// ── PAGINATION STATE ──
+const PER_PAGE = 8;
+let _page = 1;
+let _filteredList = [];
+
+function go(resetPage){
+  if(resetPage !== false) _page = 1;
   const grid=document.getElementById('grid'), rbar=document.getElementById('rbar');
   const q=(document.getElementById('searchInput').value||'').trim().toLowerCase();
   let list=q?window._prods.filter(p=>p.name.toLowerCase().includes(q)||(p.desc||'').toLowerCase().includes(q)||String(p.price).includes(q)):[...window._prods];
@@ -466,7 +528,35 @@ function go(){
     grid.innerHTML='<div class="state-box"><div class="state-icon">🔍</div><div class="state-title">Tidak ditemukan</div><div class="state-sub">Coba kata kunci atau filter lain</div></div>';
     return;
   }
-  grid.innerHTML=list.map(function(p,i){
+  // Move sold-out items to end
+  list.sort(function(a,b){
+    if(a.stock===0 && b.stock>0) return 1;
+    if(a.stock>0 && b.stock===0) return -1;
+    return 0;
+  });
+
+  // Save full filtered list for pagination
+  _filteredList = list;
+  renderPage(_page);
+}
+
+function renderPage(page){
+  _page = page;
+  const grid=document.getElementById('grid');
+  const total = _filteredList.length;
+  const totalPages = Math.ceil(total / PER_PAGE);
+  const start = (page-1)*PER_PAGE;
+  const end = Math.min(start+PER_PAGE, total);
+  const pageList = _filteredList.slice(start, end);
+
+  if(!pageList.length){
+    grid.innerHTML='<div class="state-box"><div class="state-icon">🔍</div><div class="state-title">Tidak ditemukan</div><div class="state-sub">Coba kata kunci atau filter lain</div></div>';
+    document.getElementById('paginationWrap').innerHTML='';
+    document.getElementById('pgInfo').textContent='';
+    return;
+  }
+
+  grid.innerHTML=pageList.map(function(p,i){
     const inC=ci(p.id)?ci(p.id).qty:0, out=p.stock===0||inC>=p.stock;
     const imgs=p.imgs||[], multi=imgs.length>1;
     const cats=getProdCats(p);
@@ -479,7 +569,7 @@ function go(){
     const btnClass = out ? 'out' : 'avail';
     const btnText  = out ? '✕ Stok Habis' : '+ Keranjang';
 
-    return '<div class="card'+(p.stock===0?' sold-out':'')+'" style="animation-delay:'+(i*.05)+'s">'+
+    return '<div class="card'+(p.stock===0?' sold-out':'')+'" style="animation-delay:'+(i*.04)+'s">'+
       soldOverlay+
       '<div class="gallery'+(p.stock===0?' sold-out-img':'')+'" onclick="openDetail(\''+p.id+'\')">'+
         '<div class="slides" id="sl-'+p.id+'">'+(imgs.map(function(s){return '<img src="'+s+'" alt="'+p.name+'" loading="lazy">';}).join('')||'<div style="height:100%;display:flex;align-items:center;justify-content:center;font-size:2.5rem">📷</div>')+'</div>'+
@@ -509,6 +599,57 @@ function go(){
       '</div>'+
     '</div>';
   }).join('');
+
+  // Scroll to top of grid on page change
+  if(page > 1){
+    const gridEl = document.getElementById('grid');
+    if(gridEl) gridEl.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+
+  // Render pagination
+  renderPagination(page, totalPages, total, start, end);
+}
+
+function renderPagination(page, totalPages, total, start, end){
+  const wrap = document.getElementById('paginationWrap');
+  const info = document.getElementById('pgInfo');
+
+  // Info text
+  info.textContent = total > PER_PAGE
+    ? 'Menampilkan '+(start+1)+'–'+end+' dari '+total+' produk'
+    : '';
+
+  if(totalPages <= 1){ wrap.innerHTML=''; return; }
+
+  let html = '<div class="pagination">';
+
+  // Prev arrow
+  html += '<button class="pg-arrow" onclick="renderPage('+(page-1)+')" '+(page<=1?'disabled':'')+'>&#8249;</button>';
+
+  // Page numbers with smart truncation
+  const pages = getPageRange(page, totalPages);
+  let prevP = null;
+  pages.forEach(function(p){
+    if(prevP !== null && p - prevP > 1){
+      html += '<span class="pg-dots">…</span>';
+    }
+    html += '<button class="pg-btn'+(p===page?' on':'')+'" onclick="renderPage('+p+')">'+p+'</button>';
+    prevP = p;
+  });
+
+  // Next arrow
+  html += '<button class="pg-arrow" onclick="renderPage('+(page+1)+')" '+(page>=totalPages?'disabled':'')+'>&#8250;</button>';
+
+  html += '</div>';
+  wrap.innerHTML = html;
+}
+
+function getPageRange(current, total){
+  if(total <= 5) return Array.from({length:total}, function(_,i){return i+1;});
+  const pages = new Set([1, total, current]);
+  if(current > 1) pages.add(current-1);
+  if(current < total) pages.add(current+1);
+  return Array.from(pages).sort(function(a,b){return a-b;});
 }
 
 // ── DETAIL MODAL ──

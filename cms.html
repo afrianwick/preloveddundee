@@ -802,11 +802,47 @@ window._askDelete = (id, name) => {
 // ════════════════════════════════════════
 //  IMAGE UPLOAD
 // ════════════════════════════════════════
-window._handleFiles = (files) => {
-  Array.from(files).forEach(file=>{
-    const reader=new FileReader();
-    reader.onload=e=>{ editImgs.push({type:'new',file,preview:e.target.result}); renderPreviews(); };
+// Compress image before storing (max 800px, quality 0.75)
+function compressImage(file, maxPx, quality){
+  return new Promise(function(resolve){
+    const reader = new FileReader();
+    reader.onload = function(e){
+      const img = new Image();
+      img.onload = function(){
+        const scale = Math.min(1, maxPx/Math.max(img.width, img.height));
+        const w = Math.round(img.width*scale);
+        const h = Math.round(img.height*scale);
+        const canvas = document.createElement('canvas');
+        canvas.width=w; canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.src = e.target.result;
+    };
     reader.readAsDataURL(file);
+  });
+}
+
+window._handleFiles = (files) => {
+  const MAX_PX = 900;      // max 900px wide/tall
+  const QUALITY = 0.78;    // JPEG quality
+  const MAX_KB = 400;      // warn if still > 400KB after compress
+
+  Array.from(files).forEach(async function(file){
+    // Only accept images
+    if(!file.type.startsWith('image/')){ toast('⚠️ File bukan gambar: '+file.name); return; }
+
+    try {
+      const compressed = await compressImage(file, MAX_PX, QUALITY);
+      const kb = Math.round(compressed.length * 0.75 / 1024);
+      if(kb > MAX_KB){
+        toast('⚠️ Foto '+file.name+' masih '+kb+'KB setelah compress. Coba foto lebih kecil.');
+      }
+      editImgs.push({type:'new', file, preview:compressed});
+      renderPreviews();
+    } catch(e){
+      toast('❌ Gagal proses foto: '+e.message);
+    }
   });
 };
 window._removeImg = (idx) => { editImgs.splice(idx,1); renderPreviews(); };
