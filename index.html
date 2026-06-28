@@ -472,9 +472,9 @@ window.updateGlobalBadge = function(){
 
   if(latestDate){
     const u = formatUpdated(latestDate);
-    badge.textContent = 'Produk terbaru: ' + (u ? u.label : '-') + ' · Dimuat ' + pageLoadStr;
+    badge.textContent = 'Update terbaru: ' + (u ? u.label : '-');
   } else {
-    badge.textContent = 'Dimuat ' + pageLoadStr;
+    badge.textContent = 'Belum ada update';
   }
 };
 
