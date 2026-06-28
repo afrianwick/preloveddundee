@@ -647,16 +647,27 @@ window._saveProduct = async () => {
   const existingImgs   = editImgs.filter(i=>i.type==='existing').map(i=>i.url);
   const finalImgs      = [...existingImgs, ...newImgPreviews];
 
+  // Fix floating point precision issue (0.50 becoming 0.48 etc)
+  const rawPrice = document.getElementById('ePrice').value;
+  const parsedPrice = parseFloat(rawPrice);
+  const price = isNaN(parsedPrice) ? 0 : Math.round(parsedPrice * 100) / 100;
+
+  const rawStock = document.getElementById('eStock').value;
+  const parsedStock = parseInt(rawStock, 10);
+  const stock = isNaN(parsedStock) ? 0 : parsedStock;
+
   const payload = {
     name, desc: document.getElementById('eDesc').value.trim(),
     notes: document.getElementById('eNotes').value.trim(),
-    price: parseFloat(document.getElementById('ePrice').value)||0,
-    stock: parseInt(document.getElementById('eStock').value)||0,
+    price: price,
+    stock: stock,
     currency: document.getElementById('eCurrency').value,
     categories: (document.getElementById('eCategory').value||'Others').split(',').filter(Boolean),
     category: (document.getElementById('eCategory').value||'Others').split(',')[0], // backward compat
     imgs: finalImgs
   };
+
+  payload.updatedAt = serverTimestamp();
 
   showLoading(true);
   try{

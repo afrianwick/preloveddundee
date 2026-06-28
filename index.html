@@ -199,6 +199,12 @@ body{font-family:var(--font);background:var(--gray-50);color:var(--gray-900);min
 
 
 /* ══ PAGINATION ══ */
+
+.updated-tag{font-size:9.5px;color:var(--gray-300);font-weight:600;margin-top:5px;display:flex;align-items:center;gap:3px;}
+.updated-tag svg{width:10px;height:10px;opacity:.6;}
+.detail-updated{font-size:11px;color:var(--gray-400);font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:5px;}
+.updated-new{color:#1A9E4A;background:#E8F9ED;padding:2px 7px;border-radius:100px;font-weight:700;}
+
 .pagination{display:flex;align-items:center;justify-content:center;gap:6px;padding:16px 16px 8px;max-width:640px;margin:0 auto;flex-wrap:wrap;}
 .pg-btn{width:36px;height:36px;border-radius:50%;border:1.5px solid var(--gray-200);background:var(--white);font-family:var(--font);font-size:13px;font-weight:700;color:var(--gray-500);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s var(--ease);-webkit-tap-highlight-color:transparent;}
 .pg-btn:hover:not(:disabled){border-color:var(--gray-900);color:var(--gray-900);}
@@ -392,6 +398,35 @@ const WA = "628114140218";
 window._prods = [];
 const ICONS = {Kitchen:'🍳',Clothes:'👕','Toy & Kids':'🧸',Food:'🍱',Medicine:'💊',Others:'📦'};
 const icon = c => ICONS[c]||'📦';
+
+// Format Firestore timestamp -> human readable relative time (Indonesian)
+function formatUpdated(ts){
+  if(!ts) return null;
+  let date;
+  if(ts.toDate) date = ts.toDate(); // Firestore Timestamp object
+  else if(ts.seconds) date = new Date(ts.seconds*1000);
+  else date = new Date(ts);
+  if(isNaN(date.getTime())) return null;
+
+  const now = new Date();
+  const diffMs = now - date;
+  const diffMin = Math.floor(diffMs/60000);
+  const diffHr = Math.floor(diffMin/60);
+  const diffDay = Math.floor(diffHr/24);
+
+  let isNew = diffHr < 24;
+  let label;
+  if(diffMin < 1) label = 'Baru saja';
+  else if(diffMin < 60) label = diffMin+' menit lalu';
+  else if(diffHr < 24) label = diffHr+' jam lalu';
+  else if(diffDay === 1) label = 'Kemarin';
+  else if(diffDay < 7) label = diffDay+' hari lalu';
+  else {
+    const opts = {day:'numeric', month:'short', year: date.getFullYear()!==now.getFullYear()?'numeric':undefined};
+    label = date.toLocaleDateString('id-ID', opts);
+  }
+  return {label, isNew};
+}
 const sIdx={}, qMap={};
 let cart=[];
 const ci = id => cart.find(c=>c.id===id);
@@ -584,6 +619,15 @@ function renderPage(page){
       '<div class="card-body">'+
         '<div class="pname" onclick="openDetail(\''+p.id+'\')">'+p.name+'</div>'+
         '<div class="pdesc">'+(p.desc||'')+'</div>'+
+        (function(){
+          const u = formatUpdated(p.updatedAt||p.createdAt);
+          if(!u) return '';
+          return '<div class="updated-tag">'+
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>'+
+            (u.isNew ? '<span class="updated-new">Baru</span> ' : '') +
+            u.label +
+          '</div>';
+        })()+
         '<div class="price-row'+(p.stock===0?' sold-price':'')+'">'+
           '<span class="price-main">'+(p.currency||'£')+p.price+'</span>'+
           '<span class="price-unit">/pcs</span>'+
@@ -676,6 +720,15 @@ function openDetail(id){
     '<div class="detail-body">'+
       '<div class="detail-cats">'+cats.map(function(c){return '<span class="detail-cat">'+icon(c)+' '+c+'</span>';}).join('')+'</div>'+
       '<div class="detail-name">'+p.name+'</div>'+
+      (function(){
+        const u = formatUpdated(p.updatedAt||p.createdAt);
+        if(!u) return '';
+        return '<div class="detail-updated">'+
+          '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>'+
+          (u.isNew ? '<span class="updated-new">Baru</span> ' : '')+
+          'Diupdate '+u.label.toLowerCase()+
+        '</div>';
+      })()+
       '<div class="detail-price-row"><span class="detail-price">'+(p.currency||'£')+p.price+' <span>/ pcs</span></span></div>'+
       stkHtml+
       '<div class="detail-desc">'+(p.desc||'Tidak ada deskripsi.')+'</div>'+
