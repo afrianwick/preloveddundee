@@ -24,6 +24,12 @@ body{font-family:var(--font);background:var(--gray-50);color:var(--gray-900);min
 .flag-svg{width:100%;height:44px;display:block;opacity:.7}
 .header-body{padding:18px 20px 24px;position:relative;z-index:1}
 .header-body::before{content:'';position:absolute;top:-80px;left:-60px;width:300px;height:300px;background:radial-gradient(circle,rgba(255,255,255,.04) 0%,transparent 70%);pointer-events:none}
+
+.global-update{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:100px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);font-size:11px;font-weight:600;color:rgba(255,255,255,.55);margin-top:10px;}
+.global-update svg{width:11px;height:11px;opacity:.7;flex-shrink:0;}
+.global-update .gu-dot{width:6px;height:6px;border-radius:50%;background:#34D399;flex-shrink:0;animation:pulseDot 2s ease-in-out infinite;}
+@keyframes pulseDot{0%,100%{opacity:1}50%{opacity:.4}}
+
 .store-tag{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:100px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:12px}
 .header-title{font-size:clamp(30px,8vw,48px);font-weight:800;color:#fff;line-height:.95;letter-spacing:-.03em;margin-bottom:8px}
 .header-title em{color:rgba(255,255,255,.35);font-style:normal}
@@ -258,6 +264,10 @@ footer{text-align:center;padding:20px 20px 28px;font-size:11px;color:var(--gray-
     <div class="header-title"><strong>Second</strong><br><em>Items</em></div>
     <div class="header-sub">Barang bekas berkualitas · Pesan via WhatsApp</div>
     <div class="header-line"></div>
+    <div class="global-update" id="globalUpdateBadge">
+      <span class="gu-dot"></span>
+      <span id="globalUpdateText">Memuat info toko…</span>
+    </div>
   </div>
 </header>
 
@@ -363,7 +373,9 @@ async function loadProducts(){
     if(raw){
       const {data, ts} = JSON.parse(raw);
       if(Date.now() - ts < CACHE_TTL){
-        window._prods = data; go(); return;
+        window._prods = data; go();
+        if(window.updateGlobalBadge) window.updateGlobalBadge();
+        return;
       }
     }
   } catch(_){}
@@ -377,6 +389,7 @@ async function loadProducts(){
       sessionStorage.setItem(CACHE_KEY, JSON.stringify({data:window._prods, ts:Date.now()}));
     } catch(_){} // ignore if storage full
     go();
+    if(window.updateGlobalBadge) window.updateGlobalBadge();
   } catch(err){
     console.error(err);
     document.getElementById('grid').innerHTML =
@@ -427,6 +440,44 @@ function formatUpdated(ts){
   }
   return {label, isNew};
 }
+// Page load time (when this session started)
+const PAGE_LOAD_TIME = new Date();
+
+// Update the global "store last updated" badge in header
+window.updateGlobalBadge = function(){
+  const badge = document.getElementById('globalUpdateText');
+  if(!badge) return;
+
+  const prods = window._prods || [];
+  if(!prods.length){
+    badge.textContent = 'Belum ada produk';
+    return;
+  }
+
+  // Find the most recent updatedAt/createdAt across all products
+  let latestDate = null;
+  prods.forEach(function(p){
+    const ts = p.updatedAt || p.createdAt;
+    if(!ts) return;
+    let d;
+    if(ts.toDate) d = ts.toDate();
+    else if(ts.seconds) d = new Date(ts.seconds*1000);
+    else d = new Date(ts);
+    if(!isNaN(d.getTime()) && (!latestDate || d > latestDate)) latestDate = d;
+  });
+
+  const pageLoadStr = PAGE_LOAD_TIME.toLocaleString('id-ID', {
+    day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'
+  });
+
+  if(latestDate){
+    const u = formatUpdated(latestDate);
+    badge.textContent = 'Produk terbaru: ' + (u ? u.label : '-') + ' · Dimuat ' + pageLoadStr;
+  } else {
+    badge.textContent = 'Dimuat ' + pageLoadStr;
+  }
+};
+
 const sIdx={}, qMap={};
 let cart=[];
 const ci = id => cart.find(c=>c.id===id);
