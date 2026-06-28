@@ -402,7 +402,7 @@ import { initializeApp }    from "https://www.gstatic.com/firebasejs/10.12.0/fir
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
                             from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc,
-         onSnapshot, query, orderBy, serverTimestamp, getDoc, setDoc }
+         onSnapshot, query, orderBy, serverTimestamp, getDoc, setDoc, writeBatch }
                             from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -500,31 +500,35 @@ function updateCatSelect(selectedCats){
   const cats = loadCategoriesLocal();
   const wrap = document.getElementById('eCategoryWrap');
   if(!wrap) return;
-  // selectedCats can be array or comma string
+  // selectedCats can be array or comma string; no forced default — empty selection is allowed
   let sel = selectedCats;
-  if(!sel){
-    // Try to read from hidden input
+  if(sel === undefined){
     const hidden = document.getElementById('eCategory');
     sel = hidden ? (hidden.value||'').split(',').filter(Boolean) : [];
   }
   if(typeof sel === 'string') sel = sel.split(',').filter(Boolean);
-  if(!sel.length) sel = [cats[0]?.name||'Others'];
+  sel = [...new Set(sel.map(s=>s.trim()).filter(Boolean))]; // dedupe + clean
 
-  wrap.innerHTML = cats.map(c => {
+  wrap.innerHTML = cats.length ? cats.map(c => {
     const isChecked = sel.includes(c.name);
     return `<span class="cat-check-item ${isChecked?'checked':''}" onclick="toggleCatCheck('${c.name}')">${c.icon} ${c.name}</span>`;
-  }).join('');
-  // Update hidden input
+  }).join('') : '<span style="font-size:12px;color:#9CA3AF">Belum ada kategori — tambah di menu Kategori</span>';
+
   const hidden = document.getElementById('eCategory');
   if(hidden) hidden.value = sel.join(',');
 }
 
+let _catToggleLock = false;
 function toggleCatCheck(name){
+  if(_catToggleLock) return; // guard against double-fire (rapid double click/tap)
+  _catToggleLock = true;
+  setTimeout(()=>{ _catToggleLock = false; }, 150);
+
   const hidden = document.getElementById('eCategory');
-  let sel = (hidden.value||'').split(',').filter(Boolean);
+  // Dedupe defensively in case stale state had duplicates
+  let sel = [...new Set((hidden.value||'').split(',').map(s=>s.trim()).filter(Boolean))];
   if(sel.includes(name)){
-    if(sel.length<=1){ return; } // must have at least 1
-    sel = sel.filter(s=>s!==name);
+    sel = sel.filter(s=>s!==name); // allow unchecking down to zero now
   } else {
     sel.push(name);
   }
@@ -534,14 +538,78 @@ function toggleCatCheck(name){
 window.toggleCatCheck = toggleCatCheck;
 
 window._updateCatName = async (idx, val) => {
-  const cats = loadCategoriesLocal(); cats[idx].name = val;
-  await saveCats(cats); updateCatSelect();
+  const cats = loadCategoriesLocal();
+  const oldName = cats[idx].name;
+  const newName = val.trim();
+  if(!newName || oldName === newName) return;
+
+  // Check for duplicate name
+  if(cats.some((c,i)=>i!==idx && c.name.toLowerCase()===newName.toLowerCase())){
+    toast('⚠️ Nama kategori sudah dipakai');
+    renderCatList(); // revert UI
+    return;
+  }
+
+  cats[idx].name = newName;
+  await saveCats(cats);
+
+  // Migrate all products using the old category name
+  showLoading(true);
+  try {
+    const affected = _prods.filter(p => getProdCats(p).includes(oldName));
+    if(affected.length){
+      const batch = writeBatch(db);
+      affected.forEach(p => {
+        const newCats = getProdCats(p).map(c => c===oldName ? newName : c);
+        const newCategory = newCats[0]; // backward compat field
+        batch.update(doc(db,'products',p.id), { categories: newCats, category: newCategory });
+      });
+      await batch.commit();
+      toast('✅ Kategori diganti & '+affected.length+' produk diupdate!');
+    } else {
+      toast('✅ Nama kategori diperbarui!');
+    }
+  } catch(e) {
+    console.error(e);
+    toast('❌ Gagal update produk terkait: '+e.message);
+  }
+  showLoading(false);
+
+  renderCatList();
+  updateCatSelect();
 };
 
 window._deleteCat = async (idx) => {
   const cats = loadCategoriesLocal();
   if(cats.length<=1){ toast('⚠️ Minimal 1 kategori'); return; }
-  cats.splice(idx,1); await saveCats(cats); renderCatList(); toast('🗑 Kategori dihapus');
+  const removedName = cats[idx].name;
+  cats.splice(idx,1);
+  await saveCats(cats);
+
+  // Migrate products using the deleted category -> fallback to "Others" (or first remaining cat)
+  showLoading(true);
+  try {
+    const fallback = cats.find(c=>c.name==='Others') ? 'Others' : cats[0].name;
+    const affected = _prods.filter(p => getProdCats(p).includes(removedName));
+    if(affected.length){
+      const batch = writeBatch(db);
+      affected.forEach(p => {
+        let newCats = getProdCats(p).filter(c => c !== removedName);
+        if(!newCats.length) newCats = [fallback];
+        batch.update(doc(db,'products',p.id), { categories: newCats, category: newCats[0] });
+      });
+      await batch.commit();
+      toast('🗑 Kategori dihapus & '+affected.length+' produk dipindah ke "'+fallback+'"');
+    } else {
+      toast('🗑 Kategori dihapus');
+    }
+  } catch(e) {
+    console.error(e);
+    toast('❌ Gagal update produk terkait: '+e.message);
+  }
+  showLoading(false);
+
+  renderCatList();
 };
 
 window._addCategory = async () => {
@@ -662,8 +730,10 @@ window._saveProduct = async () => {
     price: price,
     stock: stock,
     currency: document.getElementById('eCurrency').value,
-    categories: (document.getElementById('eCategory').value||'Others').split(',').filter(Boolean),
-    category: (document.getElementById('eCategory').value||'Others').split(',')[0], // backward compat
+    categories: [...new Set((document.getElementById('eCategory').value||'').split(',').map(s=>s.trim()).filter(Boolean))].length
+      ? [...new Set((document.getElementById('eCategory').value||'').split(',').map(s=>s.trim()).filter(Boolean))]
+      : ['Others'],
+    category: ([...new Set((document.getElementById('eCategory').value||'').split(',').map(s=>s.trim()).filter(Boolean))][0]) || 'Others', // backward compat
     imgs: finalImgs
   };
 
@@ -776,7 +846,7 @@ window._openAdd = () => {
   document.getElementById('eCategory').value='';
   document.getElementById('previews').innerHTML='';
   document.getElementById('modalTitle').textContent='Tambah Produk';
-  updateCatSelect([]);
+  updateCatSelect([]); // start with no category pre-selected
   document.getElementById('prodModal').classList.add('on');
 };
 
