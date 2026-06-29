@@ -483,6 +483,18 @@ async function loadCatsFromFirebase(){
   return loadCategoriesLocal();
 }
 
+async function loadSettingsFromFirebase(){
+  try{
+    const snap = await getDoc(doc(db,'config','settings'));
+    if(snap.exists()){
+      const data = snap.data();
+      saveSettingsData(data); // sync to local cache too
+      return data;
+    }
+  }catch(e){ console.warn('Firebase settings load failed:', e); }
+  return loadSettings();
+}
+
 function renderCatList(){
   const cats = loadCategoriesLocal();
   document.getElementById('catList').innerHTML = cats.map((c,i) => `
@@ -682,7 +694,7 @@ function onLoginSuccess(){
   const h=new Date().getHours();
   document.getElementById('greeting').textContent =
     (h<12?'Selamat pagi':h<17?'Selamat siang':'Selamat malam')+', '+_user.name+'!';
-  loadSettingsForm();
+  loadSettingsFromFirebase().then(()=>{ loadSettingsForm(); });
   subscribeProducts();
   loadCatsFromFirebase().then(()=>{ renderCatList(); updateCatSelect(); });
 }
@@ -943,13 +955,23 @@ function loadSettingsForm(){
   document.getElementById('sName').value=s.storeName||'Preloved Items';
   document.getElementById('sCurrency').value=s.currency||'£';
 }
-window._saveSettings = () => {
-  saveSettingsData({
+window._saveSettings = async () => {
+  const data = {
     wa: document.getElementById('sWA').value.trim(),
     storeName: document.getElementById('sName').value.trim(),
     currency: document.getElementById('sCurrency').value,
-  });
-  toast('✅ Pengaturan disimpan!');
+  };
+  saveSettingsData(data); // local cache for admin's own browser
+
+  showLoading(true);
+  try {
+    await setDoc(doc(db,'config','settings'), data);
+    toast('✅ Pengaturan disimpan & sinkron ke toko!');
+  } catch(e) {
+    console.error(e);
+    toast('⚠️ Tersimpan lokal, tapi gagal sync ke toko: '+e.message);
+  }
+  showLoading(false);
 };
 
 // ════════════════════════════════════════

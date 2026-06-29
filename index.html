@@ -350,7 +350,7 @@ footer{text-align:center;padding:20px 20px 28px;font-size:11px;color:var(--gray-
 <!-- Firebase SDK -->
 <script type="module">
 import { initializeApp }  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, collection, getDocs, query, orderBy }
+import { getFirestore, collection, getDocs, query, orderBy, getDoc, doc }
                           from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -368,9 +368,35 @@ const db  = getFirestore(app);
 // One-time fetch (lebih efisien dari onSnapshot untuk toko)
 // Cache di sessionStorage agar tidak refetch setiap navigasi
 const CACHE_KEY = 'preloved_cache';
+const SETTINGS_CACHE_KEY = 'preloved_settings_cache';
 const CACHE_TTL = 5 * 60 * 1000; // 5 menit
 
+async function loadSettings(){
+  // Check cache first
+  try {
+    const raw = sessionStorage.getItem(SETTINGS_CACHE_KEY);
+    if(raw){
+      const {data, ts} = JSON.parse(raw);
+      if(Date.now() - ts < CACHE_TTL){ window._settings = data; return; }
+    }
+  } catch(_){}
+
+  try {
+    const snap = await getDoc(doc(db,'config','settings'));
+    if(snap.exists()){
+      window._settings = snap.data();
+      try { sessionStorage.setItem(SETTINGS_CACHE_KEY, JSON.stringify({data:window._settings, ts:Date.now()})); } catch(_){}
+    } else {
+      window._settings = {};
+    }
+  } catch(e){
+    console.warn('Could not load settings from Firebase:', e);
+    window._settings = {};
+  }
+}
+
 async function loadProducts(){
+  await loadSettings();
   // Check cache dulu
   try {
     const raw = sessionStorage.getItem(CACHE_KEY);
@@ -411,7 +437,8 @@ loadProducts();
 </script>
 
 <script>
-const WA = "628114140218";
+const DEFAULT_WA = "628114140218";
+function getWA(){ return (window._settings && window._settings.wa) ? window._settings.wa : DEFAULT_WA; }
 window._prods = [];
 const ICONS = {Kitchen:'🍳',Clothes:'👕','Toy & Kids':'🧸',Food:'🍱',Medicine:'💊',Others:'📦'};
 const icon = c => ICONS[c]||'📦';
@@ -572,7 +599,7 @@ function buildMsg(){
   let lines=['Halo, saya mau order:'],total=0;
   cart.forEach(c=>{const p=window._prods.find(x=>x.id===c.id);if(!p)return;const sub=p.price*c.qty;total+=sub;lines.push('• '+p.name+' x'+c.qty+' = '+(p.currency||'£')+sub.toFixed(2));});
   lines.push('','*Total: £'+total.toFixed(2)+'*','','Mohon konfirmasi stok. Terima kasih!');
-  return 'https://wa.me/'+WA+'?text='+encodeURIComponent(lines.join('\n'));
+  return 'https://wa.me/'+getWA()+'?text='+encodeURIComponent(lines.join('\n'));
 }
 
 // ── GALLERY (card) ──
