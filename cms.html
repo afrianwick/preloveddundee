@@ -211,10 +211,7 @@ textarea{resize:vertical;min-height:80px;line-height:1.5}
     Masuk dengan Google
   </button>
 
-    <div class="login-divider">atau</div>
-
-    <button class="btn-local" onclick="window._loginLocal()">🔑 Masuk sebagai Admin (Testing)</button>
-    <div class="login-note">Login lokal hanya untuk testing di komputer sendiri.<br>Untuk produksi, gunakan Google Login.</div>
+    <!-- Login lokal dinonaktifkan untuk produksi. Hanya Google Login yang aktif. -->
   </div>
 </div>
 
@@ -661,8 +658,7 @@ window._googleLogin = async () => {
 };
 
 window._loginLocal = () => {
-  _user = { name:'Admin (Lokal)', email:'admin@local', photo:'' };
-  onLoginSuccess();
+  toast('⚠️ Login lokal dinonaktifkan. Gunakan Google Login.');
 };
 
 window._logout = async () => {
