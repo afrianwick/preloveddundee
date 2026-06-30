@@ -281,14 +281,8 @@ footer{text-align:center;padding:20px 20px 28px;font-size:11px;color:var(--gray-
     <input type="text" id="searchInput" placeholder="Cari produk…" autocomplete="off">
     <button class="s-clear" id="searchClear" onclick="clearSearch()">✕</button>
   </div>
-  <div class="pill-row">
+  <div class="pill-row" id="catPillRow">
     <button class="pill on" data-cat="all" onclick="setCat('all')">🛍 Semua</button>
-    <button class="pill" data-cat="Kitchen" onclick="setCat('Kitchen')">🍳 Kitchen</button>
-    <button class="pill" data-cat="Clothes" onclick="setCat('Clothes')">👕 Clothes</button>
-    <button class="pill" data-cat="Toy & Kids" onclick="setCat('Toy & Kids')">🧸 Toy & Kids</button>
-    <button class="pill" data-cat="Food" onclick="setCat('Food')">🍱 Food</button>
-    <button class="pill" data-cat="Medicine" onclick="setCat('Medicine')">💊 Medicine</button>
-    <button class="pill" data-cat="Others" onclick="setCat('Others')">📦 Others</button>
   </div>
   <div class="pill-row">
     <button class="pill sm on" data-f="all" onclick="setF('all')">Semua</button>
@@ -369,6 +363,7 @@ const db  = getFirestore(app);
 // Cache di sessionStorage agar tidak refetch setiap navigasi
 const CACHE_KEY = 'preloved_cache';
 const SETTINGS_CACHE_KEY = 'preloved_settings_cache';
+const CATEGORIES_CACHE_KEY = 'preloved_categories_cache';
 const CACHE_TTL = 5 * 60 * 1000; // 5 menit
 
 async function loadSettings(){
@@ -395,8 +390,49 @@ async function loadSettings(){
   }
 }
 
+const DEFAULT_CATS = [
+  {icon:'🍳',name:'Kitchen'},{icon:'👕',name:'Clothes'},{icon:'🧸',name:'Toy & Kids'},
+  {icon:'🍱',name:'Food'},{icon:'💊',name:'Medicine'},{icon:'📦',name:'Others'}
+];
+
+async function loadCategories(){
+  // Check cache first
+  try {
+    const raw = sessionStorage.getItem(CATEGORIES_CACHE_KEY);
+    if(raw){
+      const {data, ts} = JSON.parse(raw);
+      if(Date.now() - ts < CACHE_TTL){ window._categories = data; return; }
+    }
+  } catch(_){}
+
+  try {
+    const snap = await getDoc(doc(db,'config','categories'));
+    if(snap.exists() && snap.data().list && snap.data().list.length){
+      window._categories = snap.data().list;
+      try { sessionStorage.setItem(CATEGORIES_CACHE_KEY, JSON.stringify({data:window._categories, ts:Date.now()})); } catch(_){}
+    } else {
+      window._categories = DEFAULT_CATS;
+    }
+  } catch(e){
+    console.warn('Could not load categories from Firebase:', e);
+    window._categories = DEFAULT_CATS;
+  }
+}
+
+function renderCategoryPills(){
+  const row = document.getElementById('catPillRow');
+  if(!row) return;
+  const cats = window._categories || DEFAULT_CATS;
+  row.innerHTML = '<button class="pill on" data-cat="all" onclick="setCat(\'all\')">🛍 Semua</button>' +
+    cats.map(function(c){
+      return '<button class="pill" data-cat="'+c.name+'" onclick="setCat(\''+c.name+'\')">'+c.icon+' '+c.name+'</button>';
+    }).join('');
+}
+
 async function loadProducts(){
   await loadSettings();
+  await loadCategories();
+  renderCategoryPills();
   // Check cache dulu
   try {
     const raw = sessionStorage.getItem(CACHE_KEY);
@@ -440,8 +476,14 @@ loadProducts();
 const DEFAULT_WA = "628114140218";
 function getWA(){ return (window._settings && window._settings.wa) ? window._settings.wa : DEFAULT_WA; }
 window._prods = [];
-const ICONS = {Kitchen:'🍳',Clothes:'👕','Toy & Kids':'🧸',Food:'🍱',Medicine:'💊',Others:'📦'};
-const icon = c => ICONS[c]||'📦';
+// Look up icon dynamically from loaded categories (Firestore), fallback to default set
+const FALLBACK_ICONS = {Kitchen:'🍳',Clothes:'👕','Toy & Kids':'🧸',Food:'🍱',Medicine:'💊',Others:'📦'};
+function icon(c){
+  const cats = window._categories || [];
+  const found = cats.find(function(x){ return x.name === c; });
+  if(found) return found.icon;
+  return FALLBACK_ICONS[c] || '📦';
+}
 
 // Convert plain-text URLs into clickable links (safe-escaped)
 function linkify(text){
