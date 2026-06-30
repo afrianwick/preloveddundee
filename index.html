@@ -504,6 +504,16 @@ function linkify(text){
 }
 
 // Format Firestore timestamp -> human readable relative time (Indonesian)
+// Convert Firestore timestamp (or various formats) to milliseconds for sorting
+function getTimestampMs(p){
+  const ts = p.updatedAt || p.createdAt;
+  if(!ts) return 0;
+  if(ts.toDate) return ts.toDate().getTime();
+  if(ts.seconds) return ts.seconds*1000;
+  const d = new Date(ts);
+  return isNaN(d.getTime()) ? 0 : d.getTime();
+}
+
 function formatUpdated(ts){
   if(!ts) return null;
   let date;
@@ -699,6 +709,9 @@ function go(resetPage){
   else if(sort==='name_asc')   list.sort((a,b)=>a.name.localeCompare(b.name));
   else if(sort==='name_desc')  list.sort((a,b)=>b.name.localeCompare(a.name));
   else if(sort==='stock_desc') list.sort((a,b)=>b.stock-a.stock);
+  else { // default: produk terbaru update/ditambah ditaruh paling atas
+    list.sort(function(a,b){ return getTimestampMs(b) - getTimestampMs(a); });
+  }
   rbar.textContent = q||cat!=='all'||f!=='all' ? list.length+' produk ditemukan' : '';
   list.forEach(p=>{if(sIdx[p.id]===undefined){sIdx[p.id]=0;qMap[p.id]=1;}});
   if(!list.length){
